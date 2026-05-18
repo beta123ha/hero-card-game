@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d6cb779d3e9ba4459f2569f9500a873, type: 3}
+  m_Name: water
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainData
+  terrainName: Water
+  description: 
+  favoredTags:
+  - {fileID: 11400000, guid: ae3cf41a8d2a67c4a8eca0f3a513356a, type: 2}
+  - {fileID: 11400000, guid: 3e65d3c700802d24690c58416ae6b1b8, type: 2}
+  attackBonus: 2
+  defenseBonus: 2
+  healthBonus: 2

@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39a6ff3ba66515479a2dab3c3d25b5c, type: 3}
+  m_Name: viet_nam
+  m_EditorClassIdentifier: Assembly-CSharp::CountryData
+  countryName: Viet Nam
+  battlefieldTerrains:
+  - {fileID: 11400000, guid: 967ba8ee8001b17478960254dd6b25ce, type: 2}
+  - {fileID: 11400000, guid: 967ba8ee8001b17478960254dd6b25ce, type: 2}
+  - {fileID: 11400000, guid: 0df2b712f96c07e4c9c6863bfd979cc8, type: 2}
+  - {fileID: 11400000, guid: 0df2b712f96c07e4c9c6863bfd979cc8, type: 2}
+  - {fileID: 11400000, guid: 9ec73c8bd53ba3f489733e25c31db852, type: 2}
+  - {fileID: 11400000, guid: 9ec73c8bd53ba3f489733e25c31db852, type: 2}
+  - {fileID: 11400000, guid: 9ec73c8bd53ba3f489733e25c31db852, type: 2}
+  heroPool:
+  - {fileID: 11400000, guid: 2762c301141e69c43b06eaae18093d2b, type: 2}
+  - {fileID: 11400000, guid: f0d3a2721d56d8b49999bc87a008c2a4, type: 2}
+  - {fileID: 11400000, guid: 174123f609dba7741892191a4b32a4fb, type: 2}
+  - {fileID: 11400000, guid: 24fe1733690b07a4798d827dfe3748e9, type: 2}
+  - {fileID: 11400000, guid: e0f9f591af5ecc148b32998797cac9f8, type: 2}
+  - {fileID: 11400000, guid: b871174a63e67314ab864d5f78f310ca, type: 2}
+  - {fileID: 11400000, guid: 04fd9219fc7a1c945aaf71b4fed07a53, type: 2}
+  - {fileID: 11400000, guid: b557e0de45e53ce45a5a010e3cc7e9e9, type: 2}
+  - {fileID: 11400000, guid: f2ef0c9c04a921d478539084a45630ad, type: 2}
+  - {fileID: 11400000, guid: 5cb568b20dda8d64ab9f9cd0d928c47e, type: 2}
+  - {fileID: 11400000, guid: f7b5e9af702072346bb9dd049400ad04, type: 2}
+  - {fileID: 11400000, guid: de96dfe8636ddff44b5b420a92f054bb, type: 2}
+  - {fileID: 11400000, guid: 7cc90a5a0fba5ab4b9145d646fc0904c, type: 2}
+  - {fileID: 11400000, guid: 3c0624b5af1ef9a4996ec88c7a731948, type: 2}
+  - {fileID: 11400000, guid: fee96b2058889914faf8fddcc138bb3d, type: 2}
+  - {fileID: 11400000, guid: 3454b74e3b95cd049b166a874437bfe0, type: 2}
+  tacticPool:
+  - {fileID: 11400000, guid: 71c5e564723159842ba5ac728cfee7b3, type: 2}
+  - {fileID: 11400000, guid: d4eedce19f6a4874aa689bcbe1381e12, type: 2}
+  - {fileID: 11400000, guid: 614c441c3ded2cb4d9e3bc9676f067ca, type: 2}
+  - {fileID: 11400000, guid: 2c539ddf3eff3eb45b2b08fb3601501d, type: 2}
+  - {fileID: 11400000, guid: e61ceb964fcc79340ab37d6b4cc54198, type: 2}
+  - {fileID: 11400000, guid: 582a09af3d09eb14fa038032cf88be9e, type: 2}
+  - {fileID: 11400000, guid: 0d07dfa273c36e84c81c8259a67f0bc0, type: 2}
+  - {fileID: 11400000, guid: d44d795c6c247364bad6eaa2680c8f44, type: 2}
+  - {fileID: 11400000, guid: 9f023b59a97d8ca499293b39410b6030, type: 2}
+  - {fileID: 11400000, guid: b53b9c1a821e8fe4389aa1d2335367ff, type: 2}

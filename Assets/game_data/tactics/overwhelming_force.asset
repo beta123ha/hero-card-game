@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa2234ceed6fa044a41b890bf2df664, type: 3}
+  m_Name: overwhelming_force
+  m_EditorClassIdentifier: Assembly-CSharp::TacticCardData
+  tacticName: Overwhelming Force
+  countryName: Viet Nam
+  isShared: 0
+  requiredTags:
+  - {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
+  attackBonus: 3
+  defenseBonus: 0
+  healthBonus: 0
+  specialEffect: opposing_hero_defense_minus_2_this_turn
+  effectDescription: Choose 1 friendly hero with brute_force. That hero gains +3
+    attack this turn. If it attacks an opposing hero this turn, that opposing hero
+    has -2 defense for that combat.
+  artwork: {fileID: 0}

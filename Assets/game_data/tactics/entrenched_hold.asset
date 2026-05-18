@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa2234ceed6fa044a41b890bf2df664, type: 3}
+  m_Name: entrenched_hold
+  m_EditorClassIdentifier: Assembly-CSharp::TacticCardData
+  tacticName: Entrenched Hold
+  countryName: Viet Nam
+  isShared: 0
+  requiredTags:
+  - {fileID: 11400000, guid: 3e9a7100a06ef524a9f49c7093612aa0, type: 2}
+  attackBonus: 0
+  defenseBonus: 3
+  healthBonus: 0
+  specialEffect: ignore_collision_self_damage_once
+  effectDescription: Choose 1 friendly hero with positional_warfare. That hero gains
+    +3 defense this turn. The first time it would take collision damage from a non-breaking
+    attack this turn, ignore that damage.
+  artwork: {fileID: 0}

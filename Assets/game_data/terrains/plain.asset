@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d6cb779d3e9ba4459f2569f9500a873, type: 3}
+  m_Name: plain
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainData
+  terrainName: Plain
+  description: 
+  favoredTags:
+  - {fileID: 11400000, guid: ef45cc3106235d14e9b4b82d81805523, type: 2}
+  - {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
+  - {fileID: 11400000, guid: eee9a2199a9f4ca43b1a5b58f9464493, type: 2}
+  attackBonus: 3
+  defenseBonus: 1
+  healthBonus: 2

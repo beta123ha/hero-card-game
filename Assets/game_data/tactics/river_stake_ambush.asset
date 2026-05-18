@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa2234ceed6fa044a41b890bf2df664, type: 3}
+  m_Name: river_stake_ambush
+  m_EditorClassIdentifier: Assembly-CSharp::TacticCardData
+  tacticName: River Stake Ambush
+  countryName: Viet Nam
+  isShared: 0
+  requiredTags:
+  - {fileID: 11400000, guid: ae3cf41a8d2a67c4a8eca0f3a513356a, type: 2}
+  attackBonus: 2
+  defenseBonus: 0
+  healthBonus: 0
+  specialEffect: bonus_damage_to_opposing_hero_1
+  effectDescription: Choose 1 friendly hero with naval_warfare. That hero gains +2
+    attack this turn. If it attacks an opposing hero this turn, deal 1 extra damage
+    to that opposing hero.
+  artwork: {fileID: 0}

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa2234ceed6fa044a41b890bf2df664, type: 3}
+  m_Name: rapid_redeployment
+  m_EditorClassIdentifier: Assembly-CSharp::TacticCardData
+  tacticName: Rapid Redeployment
+  countryName: Viet Nam
+  isShared: 0
+  requiredTags:
+  - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
+  attackBonus: 1
+  defenseBonus: 1
+  healthBonus: 0
+  specialEffect: move_one_friendly_hero_to_empty_slot
+  effectDescription: Choose 1 friendly hero with mobile_warfare. Move it to any empty
+    friendly front slot, then it gains +1 attack and +1 defense until end of turn.
+  artwork: {fileID: 0}

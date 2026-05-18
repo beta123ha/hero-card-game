@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa2234ceed6fa044a41b890bf2df664, type: 3}
+  m_Name: master_campaign_plan
+  m_EditorClassIdentifier: Assembly-CSharp::TacticCardData
+  tacticName: Master Campaign Plan
+  countryName: Viet Nam
+  isShared: 0
+  requiredTags:
+  - {fileID: 11400000, guid: 3e65d3c700802d24690c58416ae6b1b8, type: 2}
+  attackBonus: 1
+  defenseBonus: 1
+  healthBonus: 0
+  specialEffect: draw_1
+  effectDescription: Choose 1 friendly hero with strategic_mind. That hero gains
+    +1 attack and +1 defense this turn, then draw 1 card.
+  artwork: {fileID: 0}
