@@ -1,9 +1,88 @@
 # PROJECT_CONTEXT.md — Hero Card Game
 
-> Cập nhật gần nhất: 2026-05-18  
+> Cập nhật gần nhất: 2026-05-22  
 > Mục đích file này: giúp người hỗ trợ đọc nhanh tình trạng thật của project, tránh hướng dẫn sai tên scene, tên folder, tên script, tên biến hoặc viết lệch kiến trúc hiện tại.
 
 ---
+
+## 0. Cập nhật mới nhất — 2026-05-22
+
+Mốc mới nhất của project là chuyển hệ thống hiệu ứng của **hero passive** và **tactic card** sang hướng dùng `ScriptableObject` effect.
+
+### Đã thay đổi trong hướng code hiện tại
+
+- `HeroCardData` dùng:
+
+```csharp
+public List<EffectData> passiveEffects = new List<EffectData>();
+```
+
+- `TacticCardData` dùng:
+
+```csharp
+public List<EffectData> tacticEffects = new List<EffectData>();
+```
+
+- `AIDeckScorer.cs` đã được chỉnh theo hướng mới:
+  - không chấm tactic bằng `attackBonus`, `defenseBonus`, `healthBonus` nữa;
+  - chấm hero bằng chỉ số gốc + điểm từ `passiveEffects`;
+  - chấm tactic bằng danh sách `tacticEffects`;
+  - nếu effect là `StatModifierEffectData` thì AI đọc `statType`, `value`, `targetType`, `durationType`, `stackingType` để tính điểm;
+  - giảm chỉ số của enemy được hiểu là có lợi cho AI;
+  - buff nhiều mục tiêu có điểm cao hơn buff một mục tiêu;
+  - effect lâu dài / có stack được chấm cao hơn effect ngắn hạn.
+
+- `AIDeckPlanner.cs` hiện **không cần sửa lớn**, vì nó vẫn chỉ gọi:
+
+```csharp
+AIDeckScorer.ScoreHero(...)
+AIDeckScorer.ScoreTactic(...)
+AIDeckScorer.CanUseTactic(...)
+```
+
+- Điều kiện tactic được phép chọn vẫn dựa vào:
+  - `isShared`
+  - `requiredTags`
+  - `hero.tags`
+
+### Lỗi mới đã gặp trong Unity
+
+Sau khi bỏ field bonus cũ trong `TacticCardData`, Unity báo lỗi kiểu:
+
+```text
+DeckPreviewCardUI.cs(...): error CS1061: 'TacticCardData' does not contain a definition for 'healthBonus'
+```
+
+Nguyên nhân:
+
+```text
+DeckPreviewCardUI.cs vẫn còn code cũ đang gọi tactic.attackBonus / tactic.defenseBonus / tactic.healthBonus.
+```
+
+Cách sửa đã chốt:
+
+- `DeckPreviewCardUI.cs` phải hiển thị tactic bằng `tactic.tacticEffects`.
+- Không dùng lại các field cũ `attackBonus`, `defenseBonus`, `healthBonus` trong UI preview tactic.
+- Nên có hàm helper dạng:
+  - `BuildEffectText(List<EffectData> effects)`
+  - `BuildSingleEffectText(EffectData effect)`
+- Nếu mở Unity còn lỗi đỏ tương tự, dùng tìm kiếm toàn project:
+
+```text
+tactic.attackBonus
+tactic.defenseBonus
+tactic.healthBonus
+```
+
+và sửa những chỗ đó sang đọc `tactic.tacticEffects`.
+
+### Trạng thái cần nhớ
+
+- Từ mốc này trở đi, hướng đúng là: **tactic effect và hero passive đều là effect object**.
+- Không thêm lại `attackBonus`, `defenseBonus`, `healthBonus` vào `TacticCardData` chỉ để sửa lỗi compile.
+- `TerrainData` hiện vẫn có `attackBonus`, `defenseBonus`, `healthBonus`; phần này **chưa bắt buộc đổi sang EffectData**.
+- Battle runtime thật vẫn chưa làm xong; effect module hiện chủ yếu mới được nối vào data và AI deck scoring.
+
 
 ## 1. Tổng quan project
 
@@ -327,10 +406,6 @@ public bool isShared;
 
 public List<TagData> requiredTags = new List<TagData>();
 
-public int attackBonus;
-public int defenseBonus;
-public int healthBonus;
-
 public List<EffectData> tacticEffects = new List<EffectData>();
 
 public string effectDescription;
@@ -340,9 +415,10 @@ public Sprite artwork;
 
 Lưu ý:
 
-- `attackBonus`, `defenseBonus`, `healthBonus` vẫn được giữ lại để không làm hỏng AI chọn deck cũ.
-- `tacticEffects` là hướng mới để battle xử lý effect thật.
-- Hiện chưa tạo effect asset nên nhiều tactic có thể chưa gắn `tacticEffects`.
+- `tacticEffects` là danh sách effect object thật của tactic.
+- Không chấm tactic bằng `attackBonus`, `defenseBonus`, `healthBonus` nữa.
+- Nếu còn lỗi compile nhắc đến `healthBonus` hoặc các bonus cũ trong `TacticCardData`, nghĩa là vẫn còn script chưa được sửa sang `tacticEffects`.
+- Cần kiểm tra lại Inspector của từng tactic asset để gán đúng effect asset vào `tacticEffects`.
 
 Tactic asset hiện có trong `Assets/game_data/tactics/`:
 
@@ -359,19 +435,12 @@ terrain_offensive
 thunder_charge
 ```
 
-Giá trị bonus hiện tại:
+Ghi chú sau khi chuyển sang effect object:
 
 ```text
-call_to_arms: ATK+1, DEF+1, HP+0, isShared = true
-entrenched_hold: ATK+0, DEF+3, HP+0, isShared = false
-field_medicine: ATK+0, DEF+0, HP+0, isShared = true
-iron_wall_formation: ATK+0, DEF+2, HP+2, isShared = false
-master_campaign_plan: ATK+1, DEF+1, HP+0, isShared = false
-overwhelming_force: ATK+3, DEF+0, HP+0, isShared = false
-rapid_redeployment: ATK+1, DEF+1, HP+0, isShared = false
-river_stake_ambush: ATK+2, DEF+0, HP+0, isShared = false
-terrain_offensive: ATK+2, DEF+1, HP+0, isShared = false
-thunder_charge: ATK+3, DEF+0, HP+0, isShared = false
+Các tactic asset cần được kiểm tra lại trong Inspector.
+Mỗi tactic nên dùng tacticEffects để chứa effect thật.
+Các giá trị bonus cũ kiểu ATK+ / DEF+ / HP+ không còn là nguồn xử lý chính của AI deck scorer.
 ```
 
 ### 5.5. CountryData
@@ -639,6 +708,34 @@ public bool IsComplete();
 15 hero
 9 tactic
 ```
+
+Cập nhật 2026-05-22:
+
+```text
+AIDeckScorer hiện đã chuyển sang đọc EffectData.
+Hero được chấm thêm điểm từ passiveEffects.
+Tactic được chấm điểm từ tacticEffects.
+AIDeckPlanner vẫn giữ vai trò chọn danh sách sau khi scorer trả điểm.
+```
+
+Các helper logic quan trọng trong hướng mới:
+
+```text
+ScoreEffectList
+ScoreEffect
+ScoreStatModifierEffect
+ScoreSpecialEffect
+GetTargetMultiplier
+GetDurationMultiplier
+GetStackMultiplier
+```
+
+Lưu ý:
+
+```text
+Nếu còn code trong AI gọi tactic.attackBonus, tactic.defenseBonus hoặc tactic.healthBonus thì đó là code cũ cần sửa.
+```
+
 
 ### 7.4. AI xếp terrain
 
@@ -1050,6 +1147,34 @@ Preview Card Prefab = deck_preview_card
 Preview Time = 60
 ```
 
+Cập nhật 2026-05-22:
+
+```text
+DeckPreviewCardUI đã cần đổi theo hướng mới để preview tacticEffects.
+Không được hiển thị tactic bằng tactic.attackBonus / tactic.defenseBonus / tactic.healthBonus nữa.
+```
+
+Lỗi từng gặp:
+
+```text
+error CS1061: 'TacticCardData' does not contain a definition for 'healthBonus'
+```
+
+Nguyên nhân:
+
+```text
+TacticCardData đã chuyển sang tacticEffects nhưng DeckPreviewCardUI vẫn còn đọc field cũ.
+```
+
+Cách xử lý đúng:
+
+```text
+SetupTactic(TacticCardData tactic)
+-> đọc tactic.tacticEffects
+-> dùng BuildEffectText để tạo text preview
+```
+
+
 Lưu ý:
 
 - `Enemy Hero List Parent` và `Enemy Tactic List Parent` phải là object `Content` trong Scroll View, không phải panel/viewport.
@@ -1213,6 +1338,12 @@ Yêu cầu:
     - StatCalculator
     - StatModifierEffectData
 14. Battle scene hiện có UI rất đơn giản nhưng chưa có battle runtime thật.
+
+15. Chuyển hướng AI deck scorer sang đọc `EffectData`:
+    - hero dùng `passiveEffects`
+    - tactic dùng `tacticEffects`
+    - AI không phụ thuộc vào bonus cũ của tactic nữa
+16. Phát hiện lỗi `DeckPreviewCardUI` còn gọi `tactic.healthBonus` sau khi đổi sang effect object và đã chốt cách sửa sang hiển thị `tacticEffects`.
 ```
 
 ---
@@ -1228,7 +1359,7 @@ Các phần chưa hoàn thiện:
    - defense_plus_2
    - attack_minus_2
    - defense_minus_2
-3. Chưa gắn tacticEffects vào tactic card.
+3. Cần kiểm tra/gán đầy đủ `tacticEffects` cho từng tactic card trong Inspector.
 4. Chưa test EffectResolver bằng EffectTestRunner.
 5. Chưa có battle runtime thật.
 6. Chưa có CardInstance.
@@ -1243,7 +1374,7 @@ Các phần chưa hoàn thiện:
 15. Chưa có TacticService.
 16. Chưa có enemy AI đánh bài trong battle.
 17. Chưa nối terrain bonus vào battle.
-18. Chưa nối hero passiveEffects vào battle.
+18. Chưa nối hero `passiveEffects` vào battle runtime thật.
 ```
 
 ---
@@ -1332,7 +1463,7 @@ Khi hỗ trợ project này, cần tuân thủ:
 4. Không nhét logic AI vào UI controller.
 5. Không nhét toàn bộ effect vào BattleManager.
 6. Không sửa trực tiếp chỉ số gốc trong HeroCardData hoặc TacticCardData.
-7. Không xóa các field cũ attackBonus/defenseBonus/healthBonus của TacticCardData khi AI deck scorer còn có thể dùng.
+7. Không thêm lại các field cũ `attackBonus` / `defenseBonus` / `healthBonus` vào `TacticCardData` chỉ để sửa lỗi compile; code cũ phải được chuyển sang đọc `tacticEffects`.
 8. Khi thêm hệ thống mới, ưu tiên tách module:
    - battle runtime
    - combat
@@ -1348,5 +1479,5 @@ Khi hỗ trợ project này, cần tuân thủ:
 ## 15. Câu tóm tắt để gửi vào chat mới
 
 ```text
-Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan, nhưng chưa tạo Assets/game_data/effects và chưa tạo effect asset. Battle hiện mới có BattleUIController rất đơn giản, chưa có battle runtime thật. Việc tiếp theo nên làm là tạo effect assets để test effect module hoặc bắt đầu BattleInitializer đọc GameSession, tạo deck runtime, shuffle, draw 5 lá, random turn và hiển thị battle UI tối thiểu.
+Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan. Mốc mới nhất là đã chuyển hero passive và tactic card sang dùng ScriptableObject effect: HeroCardData dùng passiveEffects, TacticCardData dùng tacticEffects, AIDeckScorer đọc EffectData thay vì attackBonus/defenseBonus/healthBonus cũ. Vừa gặp lỗi DeckPreviewCardUI còn gọi tactic.healthBonus sau khi bỏ field cũ; hướng sửa đúng là preview bằng tactic.tacticEffects. Battle hiện mới có BattleUIController rất đơn giản, chưa có battle runtime thật. Việc tiếp theo nên làm là kiểm tra/gán effect asset cho tactic/passive, test lại AI chọn deck, rồi bắt đầu BattleInitializer đọc GameSession, tạo deck runtime, shuffle, draw 5 lá, random turn và hiển thị battle UI tối thiểu.
 ```

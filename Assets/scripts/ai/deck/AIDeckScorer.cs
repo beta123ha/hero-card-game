@@ -15,24 +15,18 @@ public static class AIDeckScorer
             return -999999f;
         }
 
-        float attackWeight = 3f;
-        float defenseWeight = 3f;
-        float healthWeight = 3f;
-        float comboWeight = 3f;
-
-        if (profile != null)
-        {
-            attackWeight = profile.attackWeight;
-            defenseWeight = profile.defenseWeight;
-            healthWeight = profile.healthWeight;
-            comboWeight = profile.comboWeight;
-        }
+        float attackWeight = GetAttackWeight(profile);
+        float defenseWeight = GetDefenseWeight(profile);
+        float healthWeight = GetHealthWeight(profile);
+        float comboWeight = GetComboWeight(profile);
 
         float score = 0f;
 
         score += hero.baseAttack * attackWeight;
         score += hero.baseDefense * defenseWeight;
         score += hero.baseHealth * healthWeight;
+
+        score += ScoreEffectList(hero.passiveEffects, profile);
 
         int comboCount = CountPossibleTacticCombos(hero, country);
         score += comboCount * comboWeight;
@@ -54,26 +48,12 @@ public static class AIDeckScorer
             return -999999f;
         }
 
-        float attackWeight = 3f;
-        float defenseWeight = 3f;
-        float healthWeight = 3f;
-        float comboWeight = 3f;
-        float tacticSynergyWeight = 3f;
-
-        if (profile != null)
-        {
-            attackWeight = profile.attackWeight;
-            defenseWeight = profile.defenseWeight;
-            healthWeight = profile.healthWeight;
-            comboWeight = profile.comboWeight;
-            tacticSynergyWeight = profile.tacticSynergyWeight;
-        }
+        float comboWeight = GetComboWeight(profile);
+        float tacticSynergyWeight = GetTacticSynergyWeight(profile);
 
         float score = 0f;
 
-        score += tactic.attackBonus * attackWeight;
-        score += tactic.defenseBonus * defenseWeight;
-        score += tactic.healthBonus * healthWeight;
+        score += ScoreEffectList(tactic.tacticEffects, profile);
 
         if (tactic.isShared)
         {
@@ -83,12 +63,20 @@ public static class AIDeckScorer
         int matchingHeroCount = CountMatchingHeroesForTactic(tactic, selectedHeroes);
         score += matchingHeroCount * comboWeight;
 
+        if (tactic.tacticEffects == null || tactic.tacticEffects.Count == 0)
+        {
+            score -= 20f;
+        }
+
         score += GetRandomBonus(profile, difficulty);
 
         return score;
     }
 
-    public static bool CanUseTactic(TacticCardData tactic, List<HeroCardData> selectedHeroes)
+    public static bool CanUseTactic(
+        TacticCardData tactic,
+        List<HeroCardData> selectedHeroes
+    )
     {
         if (tactic == null)
         {
@@ -121,7 +109,177 @@ public static class AIDeckScorer
         return false;
     }
 
-    private static int CountPossibleTacticCombos(HeroCardData hero, CountryData country)
+    private static float ScoreEffectList(
+        List<EffectData> effects,
+        AIPlayStyleProfile profile
+    )
+    {
+        if (effects == null || effects.Count == 0)
+        {
+            return 0f;
+        }
+
+        float totalScore = 0f;
+
+        foreach (EffectData effect in effects)
+        {
+            totalScore += ScoreEffect(effect, profile);
+        }
+
+        return totalScore;
+    }
+
+    private static float ScoreEffect(
+        EffectData effect,
+        AIPlayStyleProfile profile
+    )
+    {
+        if (effect == null)
+        {
+            return 0f;
+        }
+
+        StatModifierEffectData statEffect = effect as StatModifierEffectData;
+
+        if (statEffect != null)
+        {
+            return ScoreStatModifierEffect(statEffect, profile);
+        }
+
+        return ScoreSpecialEffect(effect, profile);
+    }
+
+    private static float ScoreStatModifierEffect(
+        StatModifierEffectData effect,
+        AIPlayStyleProfile profile
+    )
+    {
+        float statWeight = GetWeightForStat(effect.statType, profile);
+        float targetMultiplier = GetTargetMultiplier(effect.targetType);
+        float durationMultiplier = GetDurationMultiplier(effect);
+        float stackMultiplier = GetStackMultiplier(effect);
+
+        return effect.value
+            * statWeight
+            * targetMultiplier
+            * durationMultiplier
+            * stackMultiplier;
+    }
+
+    private static float ScoreSpecialEffect(
+        EffectData effect,
+        AIPlayStyleProfile profile
+    )
+    {
+        float baseScore = GetTacticSynergyWeight(profile);
+        float targetMultiplier = Mathf.Abs(GetTargetMultiplier(effect.targetType));
+        float durationMultiplier = GetDurationMultiplier(effect);
+        float stackMultiplier = GetStackMultiplier(effect);
+
+        return baseScore * targetMultiplier * durationMultiplier * stackMultiplier;
+    }
+
+    private static float GetWeightForStat(
+        StatType statType,
+        AIPlayStyleProfile profile
+    )
+    {
+        if (statType == StatType.Attack)
+        {
+            return GetAttackWeight(profile);
+        }
+
+        if (statType == StatType.Defense)
+        {
+            return GetDefenseWeight(profile);
+        }
+
+        if (statType == StatType.Health)
+        {
+            return GetHealthWeight(profile);
+        }
+
+        return 1f;
+    }
+
+    private static float GetTargetMultiplier(EffectTargetType targetType)
+    {
+        switch (targetType)
+        {
+            case EffectTargetType.SelfHero:
+            case EffectTargetType.SelectedAllyHero:
+            case EffectTargetType.OwnerPlayer:
+                return 1f;
+
+            case EffectTargetType.AllAllyHeroes:
+                return 1.5f;
+
+            case EffectTargetType.SelectedEnemyHero:
+            case EffectTargetType.OpponentPlayer:
+                return -1f;
+
+            case EffectTargetType.AllEnemyHeroes:
+                return -1.5f;
+
+            default:
+                return 1f;
+        }
+    }
+
+    private static float GetDurationMultiplier(EffectData effect)
+    {
+        if (effect == null)
+        {
+            return 1f;
+        }
+
+        if (effect.durationType == EffectDurationType.Instant)
+        {
+            return 0.8f;
+        }
+
+        if (effect.durationType == EffectDurationType.UntilEndOfTurn)
+        {
+            return Mathf.Max(1f, effect.durationTurns);
+        }
+
+        if (effect.durationType == EffectDurationType.Permanent)
+        {
+            return 2f;
+        }
+
+        if (effect.durationType == EffectDurationType.WhileConditionTrue)
+        {
+            return 1.5f;
+        }
+
+        return 1f;
+    }
+
+    private static float GetStackMultiplier(EffectData effect)
+    {
+        if (effect == null)
+        {
+            return 1f;
+        }
+
+        if (effect.stackingType == EffectStackingType.Stackable)
+        {
+            return 1.4f;
+        }
+
+        if (effect.stackingType == EffectStackingType.StackableWithLimit)
+        {
+            return 1f + Mathf.Max(0, effect.maxStacks - 1) * 0.2f;
+        }
+
+        return 1f;
+    }
+
+    private static int CountPossibleTacticCombos(
+        HeroCardData hero,
+        CountryData country
+    )
     {
         if (hero == null || country == null || country.tacticPool == null)
         {
@@ -179,7 +337,10 @@ public static class AIDeckScorer
         return count;
     }
 
-    private static bool HeroMatchesTactic(HeroCardData hero, TacticCardData tactic)
+    private static bool HeroMatchesTactic(
+        HeroCardData hero,
+        TacticCardData tactic
+    )
     {
         if (hero == null || tactic == null)
         {
@@ -202,7 +363,10 @@ public static class AIDeckScorer
         return false;
     }
 
-    private static float GetRandomBonus(AIPlayStyleProfile profile, AIDifficulty difficulty)
+    private static float GetRandomBonus(
+        AIPlayStyleProfile profile,
+        AIDifficulty difficulty
+    )
     {
         float baseRandom = 1f;
 
@@ -222,5 +386,30 @@ public static class AIDeckScorer
         }
 
         return Random.Range(0f, baseRandom * 0.5f);
+    }
+
+    private static float GetAttackWeight(AIPlayStyleProfile profile)
+    {
+        return profile != null ? profile.attackWeight : 3f;
+    }
+
+    private static float GetDefenseWeight(AIPlayStyleProfile profile)
+    {
+        return profile != null ? profile.defenseWeight : 3f;
+    }
+
+    private static float GetHealthWeight(AIPlayStyleProfile profile)
+    {
+        return profile != null ? profile.healthWeight : 3f;
+    }
+
+    private static float GetComboWeight(AIPlayStyleProfile profile)
+    {
+        return profile != null ? profile.comboWeight : 3f;
+    }
+
+    private static float GetTacticSynergyWeight(AIPlayStyleProfile profile)
+    {
+        return profile != null ? profile.tacticSynergyWeight : 3f;
     }
 }

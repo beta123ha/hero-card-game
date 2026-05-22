@@ -12,11 +12,6 @@ public class TacticCardData : ScriptableObject
     [Header("Requirement")]
     public List<TagData> requiredTags = new List<TagData>();
 
-    [Header("Simple Effect For First Version")]
-    public int attackBonus;
-    public int defenseBonus;
-    public int healthBonus;
-
     [Header("Tactic Effects")]
     public List<EffectData> tacticEffects = new List<EffectData>();
 
