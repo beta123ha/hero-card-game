@@ -11,6 +11,11 @@ public abstract class EffectData : ScriptableObject
     [Header("Target")]
     public EffectTargetType targetType = EffectTargetType.SelectedAllyHero;
 
+    [Header("Condition")]
+    public EffectConditionType conditionType = EffectConditionType.Always;
+    public TerrainData requiredTerrain;
+    public TagData requiredTag;
+
     [Header("Duration")]
     public EffectDurationType durationType = EffectDurationType.UntilEndOfTurn;
     public int durationTurns = 1;
