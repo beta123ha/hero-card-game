@@ -1,11 +1,129 @@
 # PROJECT_CONTEXT.md — Hero Card Game
 
-> Cập nhật gần nhất: 2026-05-22  
+> Cập nhật gần nhất: 2026-05-24  
 > Mục đích file này: giúp người hỗ trợ đọc nhanh tình trạng thật của project, tránh hướng dẫn sai tên scene, tên folder, tên script, tên biến hoặc viết lệch kiến trúc hiện tại.
 
 ---
 
-## 0. Cập nhật mới nhất — 2026-05-22
+## 0. Cập nhật mới nhất — 2026-05-24
+
+Mốc mới nhất của project là bổ sung **điều kiện kích hoạt effect** để hero passive không bị hiểu nhầm là buff vĩnh viễn vô điều kiện.
+
+### Lý do cập nhật
+
+- Khi gán thử effect vào `HeroCardData.passiveEffects`, nếu dùng `durationType = Permanent` cho mọi nội tại thì thiết kế sẽ bị sai.
+- Nội tại hero theo thiết kế có thể chỉ phát huy khi điều kiện đúng, ví dụ hero đứng trên địa hình phù hợp thì được buff.
+- Khi điều kiện không còn đúng, effect phải ngừng tác dụng.
+
+### Code mới đã thêm / đã sửa
+
+Đã thêm enum mới:
+
+```text
+Assets/scripts/effects/core/EffectConditionType.cs
+```
+
+Nội dung định hướng:
+
+```csharp
+public enum EffectConditionType
+{
+    Always,
+    HeroOnFavoredTerrain,
+    HeroOnSpecificTerrain,
+    HeroHasTag,
+    EnemyHasTag
+}
+```
+
+Đã sửa:
+
+```text
+Assets/scripts/effects/core/EffectData.cs
+```
+
+`EffectData` hiện có thêm nhóm field condition:
+
+```csharp
+[Header("Condition")]
+public EffectConditionType conditionType = EffectConditionType.Always;
+public TerrainData requiredTerrain;
+public TagData requiredTag;
+```
+
+### Quy ước dùng condition/duration
+
+```text
+Always:
+- dùng cho effect không cần điều kiện đặc biệt.
+
+HeroOnFavoredTerrain:
+- dùng cho passive kiểu hero đứng trên địa hình phù hợp với tag thì được buff.
+
+HeroOnSpecificTerrain:
+- dùng cho passive/tactic yêu cầu đúng một loại địa hình cụ thể.
+
+HeroHasTag:
+- dùng cho effect yêu cầu hero có tag cụ thể.
+
+EnemyHasTag:
+- dùng cho effect tương tác với enemy ở ô đối diện hoặc enemy mục tiêu có tag cụ thể.
+```
+
+Quy tắc quan trọng:
+
+```text
+Passive phụ thuộc điều kiện: durationType = WhileConditionTrue
+Tactic buff ngắn hạn: durationType = UntilEndOfTurn hoặc duration nhiều lượt
+Effect thật sự tồn tại lâu dài trong trận: durationType = Permanent
+```
+
+### Data effect hiện tại
+
+Đã bắt đầu tạo folder:
+
+```text
+Assets/game_data/effects/
+```
+
+Các file/folder mới cần được Git theo dõi:
+
+```text
+Assets/game_data/effects.meta
+Assets/game_data/effects/
+Assets/scripts/effects/core/EffectConditionType.cs
+Assets/scripts/effects/core/EffectConditionType.cs.meta
+```
+
+Các tactic asset đã có thay đổi để thử gắn effect:
+
+```text
+Assets/game_data/tactics/entrenched_hold.asset
+Assets/game_data/tactics/river_stake_ambush.asset
+```
+
+### Trạng thái cần nhớ
+
+- Hero passive đã đúng hướng là dùng `passiveEffects`, nhưng không phải mọi passive đều là `Permanent`.
+- Tactic effect vẫn dùng `tacticEffects`.
+- Effect asset cụ thể nên nằm trong `Assets/game_data/effects/`, không nằm trong `Assets/scripts/effects/`.
+- `Assets/scripts/effects/` chỉ chứa code C#.
+- Battle runtime vẫn chưa làm xong; condition hiện mới là data/schema, phần kiểm tra condition thật sẽ cần nối vào battle sau.
+
+### Việc làm tiếp gần nhất
+
+```text
+1. Kiểm tra Unity compile sau khi thêm EffectConditionType.cs.
+2. Kiểm tra các effect asset trong Assets/game_data/effects.
+3. Gán effect vào tacticEffects của một số tactic card.
+4. Gán passiveEffects cho một hero theo kiểu WhileConditionTrue.
+5. Test lại opponent_deck_preview xem effect hiển thị đúng chưa.
+6. Sau đó bắt đầu BattleInitializer.
+```
+
+---
+
+## 0.1. Mốc trước — 2026-05-22
 
 Mốc mới nhất của project là chuyển hệ thống hiệu ứng của **hero passive** và **tactic card** sang hướng dùng `ScriptableObject` effect.
 
@@ -233,19 +351,20 @@ Trong `Assets/game_data/` hiện có:
 Assets/game_data/
 ├── ai_profiles/
 ├── countries/
+├── effects/
 ├── heroes/
 ├── tactics/
 ├── tags/
 └── terrains/
 ```
 
-Hiện chưa có folder:
+Hiện đã bắt đầu có folder:
 
 ```text
 Assets/game_data/effects
 ```
 
-Nghĩa là effect module đã có code, nhưng effect asset như `attack_plus_2`, `defense_plus_2` chưa được tạo trong Unity Inspector.
+Folder này dùng để chứa effect asset như `attack_plus_2`, `defense_plus_2`, `attack_minus_2`, `defense_minus_2` và các passive/tactic effect cụ thể.
 
 ---
 
@@ -848,6 +967,7 @@ Files:
 
 ```text
 EffectData.cs
+EffectConditionType.cs
 EffectDurationType.cs
 EffectTargetType.cs
 EffectInstance.cs
@@ -860,11 +980,26 @@ EffectStackingType.cs
 public string effectName;
 public string description;
 public EffectTargetType targetType;
+
+public EffectConditionType conditionType;
+public TerrainData requiredTerrain;
+public TagData requiredTag;
+
 public EffectDurationType durationType;
 public int durationTurns;
 public EffectStackingType stackingType;
 public int maxStacks;
 public string stackKey;
+```
+
+Condition hiện có:
+
+```text
+Always
+HeroOnFavoredTerrain
+HeroOnSpecificTerrain
+HeroHasTag
+EnemyHasTag
 ```
 
 Duration hiện có:
@@ -982,32 +1117,61 @@ Lưu ý:
 - Hiện `StatCalculator` chặn chỉ số nhỏ hơn 1.
 - Nếu sau này muốn ATK/DEF có thể về 0 thì sửa rule này.
 
-### 8.4. Việc effect còn thiếu
+### 8.4. Data effect asset
 
-Hiện chưa làm:
+Folder asset effect:
 
 ```text
 Assets/game_data/effects/
-attack_plus_2.asset
-defense_plus_2.asset
-attack_minus_2.asset
-defense_minus_2.asset
-rage_attack_plus_1.asset
-EffectTestRunner.cs
 ```
 
-Mốc tiếp theo trước battle nên là:
+Trạng thái hiện tại:
 
 ```text
-1. Tạo folder Assets/game_data/effects
-2. Tạo asset Stat Modifier:
-   - attack_plus_2
-   - defense_plus_2
-   - attack_minus_2
-   - defense_minus_2
-3. Gắn thử vào vài TacticCardData
-4. Test EffectResolver + StatCalculator
-5. Sau đó mới nối vào battle runtime
+Đã bắt đầu tạo folder Assets/game_data/effects.
+Đã có thay đổi ở một số tactic asset để thử gắn effect.
+Cần kiểm tra tên và Inspector của từng effect asset trực tiếp trong Unity.
+```
+
+Các effect asset giai đoạn đầu nên có:
+
+```text
+attack_plus_2
+defense_plus_2
+attack_minus_2
+defense_minus_2
+```
+
+Cách đặt đúng:
+
+```text
+Code effect: Assets/scripts/effects/
+Data effect asset: Assets/game_data/effects/
+```
+
+Ví dụ passive hero phụ thuộc địa hình:
+
+```text
+Condition Type: HeroOnFavoredTerrain
+Duration Type: WhileConditionTrue
+Target Type: SelfHero
+```
+
+Ví dụ tactic buff/debuff ngắn hạn:
+
+```text
+Condition Type: Always
+Duration Type: UntilEndOfTurn
+Target Type: SelectedAllyHero hoặc SelectedEnemyHero
+```
+
+Còn cần làm:
+
+```text
+1. Kiểm tra các effect asset trong Assets/game_data/effects.
+2. Gắn effect asset đầy đủ vào tacticEffects của tactic card.
+3. Gắn passiveEffects cho hero bằng condition/duration hợp lý.
+4. Test EffectResolver + StatCalculator hoặc test qua battle runtime sau này.
 ```
 
 ---
@@ -1344,6 +1508,10 @@ Yêu cầu:
     - tactic dùng `tacticEffects`
     - AI không phụ thuộc vào bonus cũ của tactic nữa
 16. Phát hiện lỗi `DeckPreviewCardUI` còn gọi `tactic.healthBonus` sau khi đổi sang effect object và đã chốt cách sửa sang hiển thị `tacticEffects`.
+17. Bổ sung `EffectConditionType.cs` để effect có điều kiện kích hoạt.
+18. Sửa `EffectData.cs` để có `conditionType`, `requiredTerrain`, `requiredTag`.
+19. Bắt đầu tạo folder `Assets/game_data/effects` để chứa effect asset.
+20. Bắt đầu gắn thử effect vào một số tactic asset như `entrenched_hold` và `river_stake_ambush`.
 ```
 
 ---
@@ -1353,28 +1521,26 @@ Yêu cầu:
 Các phần chưa hoàn thiện:
 
 ```text
-1. Chưa tạo Assets/game_data/effects.
-2. Chưa tạo các effect asset:
-   - attack_plus_2
-   - defense_plus_2
-   - attack_minus_2
-   - defense_minus_2
-3. Cần kiểm tra/gán đầy đủ `tacticEffects` cho từng tactic card trong Inspector.
+1. Cần kiểm tra đầy đủ các effect asset trong Assets/game_data/effects.
+2. Cần gán đầy đủ tacticEffects cho từng tactic card trong Inspector.
+3. Cần gán passiveEffects cho hero bằng condition/duration hợp lý.
 4. Chưa test EffectResolver bằng EffectTestRunner.
-5. Chưa có battle runtime thật.
-6. Chưa có CardInstance.
-7. Chưa có HeroInstance.
-8. Chưa có PlayerBattleState.
-9. Chưa có BattleState.
-10. Chưa có BoardSlot.
-11. Chưa có BattleInitializer.
-12. Chưa có BattleManager thật.
-13. Chưa có TurnManager.
-14. Chưa có CombatResolver.
-15. Chưa có TacticService.
-16. Chưa có enemy AI đánh bài trong battle.
-17. Chưa nối terrain bonus vào battle.
-18. Chưa nối hero `passiveEffects` vào battle runtime thật.
+5. Chưa có logic battle kiểm tra EffectConditionType thật.
+6. Chưa có battle runtime thật.
+7. Chưa có CardInstance.
+8. Chưa có HeroInstance.
+9. Chưa có PlayerBattleState.
+10. Chưa có BattleState.
+11. Chưa có BoardSlot.
+12. Chưa có BattleInitializer.
+13. Chưa có BattleManager thật.
+14. Chưa có TurnManager.
+15. Chưa có CombatResolver.
+16. Chưa có TacticService.
+17. Chưa có enemy AI đánh bài trong battle.
+18. Chưa nối terrain bonus vào battle.
+19. Chưa nối hero passiveEffects vào battle runtime thật.
+20. Chưa nối tacticEffects vào battle runtime thật.
 ```
 
 ---
@@ -1385,12 +1551,14 @@ Mốc tiếp theo nên làm theo thứ tự:
 
 ```text
 Bước 1: Hoàn thiện test effect module
-- tạo Assets/game_data/effects
-- tạo attack_plus_2
-- tạo defense_plus_2
-- tạo attack_minus_2
-- tạo defense_minus_2
-- gắn thử vào vài tactic
+- kiểm tra Assets/game_data/effects và file .meta đã được Git theo dõi
+- kiểm tra/tạo attack_plus_2
+- kiểm tra/tạo defense_plus_2
+- kiểm tra/tạo attack_minus_2
+- kiểm tra/tạo defense_minus_2
+- với passive phụ thuộc địa hình, dùng WhileConditionTrue + condition phù hợp
+- với tactic ngắn hạn, dùng UntilEndOfTurn hoặc duration phù hợp
+- gắn thử vào vài tactic/passive
 - tạo EffectTestRunner hoặc test nhỏ để kiểm tra StatCalculator
 
 Bước 2: Tạo battle runtime cơ bản
@@ -1441,7 +1609,7 @@ Bước 6: Sau khi battle chạy ổn
 Mốc nhỏ nhất nên làm ngay sau file này:
 
 ```text
-Tạo Assets/game_data/effects và tạo asset attack_plus_2, defense_plus_2, attack_minus_2, defense_minus_2 để test effect module.
+Kiểm tra Unity compile sau khi thêm EffectConditionType.cs, sau đó kiểm tra/gán effect asset trong Assets/game_data/effects cho tacticEffects và passiveEffects.
 ```
 
 Hoặc nếu muốn bỏ qua test effect tạm thời:
@@ -1472,6 +1640,7 @@ Khi hỗ trợ project này, cần tuân thủ:
    - AI
 9. Giải thích bằng tiếng Việt rõ ràng, từng bước.
 10. Code C# dùng tên class/file đúng với project.
+11. Không mặc định mọi hero passive là Permanent; passive phụ thuộc điều kiện nên dùng WhileConditionTrue và EffectConditionType phù hợp.
 ```
 
 ---
@@ -1479,5 +1648,5 @@ Khi hỗ trợ project này, cần tuân thủ:
 ## 15. Câu tóm tắt để gửi vào chat mới
 
 ```text
-Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan. Mốc mới nhất là đã chuyển hero passive và tactic card sang dùng ScriptableObject effect: HeroCardData dùng passiveEffects, TacticCardData dùng tacticEffects, AIDeckScorer đọc EffectData thay vì attackBonus/defenseBonus/healthBonus cũ. Vừa gặp lỗi DeckPreviewCardUI còn gọi tactic.healthBonus sau khi bỏ field cũ; hướng sửa đúng là preview bằng tactic.tacticEffects. Battle hiện mới có BattleUIController rất đơn giản, chưa có battle runtime thật. Việc tiếp theo nên làm là kiểm tra/gán effect asset cho tactic/passive, test lại AI chọn deck, rồi bắt đầu BattleInitializer đọc GameSession, tạo deck runtime, shuffle, draw 5 lá, random turn và hiển thị battle UI tối thiểu.
+Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectConditionType, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan. Hero passive dùng passiveEffects, tactic card dùng tacticEffects, AIDeckScorer đọc EffectData thay vì attackBonus/defenseBonus/healthBonus cũ. Mốc mới nhất là bổ sung EffectConditionType và thêm conditionType/requiredTerrain/requiredTag vào EffectData để passive không bị hiểu nhầm là Permanent vô điều kiện; passive phụ thuộc địa hình nên dùng WhileConditionTrue. Đã bắt đầu tạo Assets/game_data/effects và chỉnh thử một số tactic asset như entrenched_hold, river_stake_ambush. Battle hiện mới có BattleUIController rất đơn giản, chưa có battle runtime thật. Việc tiếp theo nên làm là kiểm tra/gán effect asset cho tactic/passive, test lại deck preview, rồi bắt đầu BattleInitializer đọc GameSession, tạo deck runtime, shuffle, draw 5 lá, random turn và hiển thị battle UI tối thiểu.
 ```

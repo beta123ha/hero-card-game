@@ -6,6 +6,138 @@
 
 ---
 
+## 2026-05-24 — Thêm điều kiện cho EffectData và bắt đầu tạo effect asset
+
+### Bối cảnh
+
+- Khi bắt đầu gán effect vào `passiveEffects` của hero, phát hiện nếu để nội tại dạng `Permanent` thì không đúng thiết kế lâu dài.
+- Nội tại hero không nên mặc định luôn áp dụng vĩnh viễn.
+- Thiết kế đúng là nội tại có thể phụ thuộc vào điều kiện, ví dụ:
+  - hero đứng trên địa hình phù hợp thì được cộng chỉ số;
+  - hero rời khỏi địa hình đó thì buff ngừng tác dụng;
+  - hero đối đầu enemy có tag cụ thể thì nhận lợi thế hoặc bất lợi.
+
+### Đã làm / đã chốt trong chat
+
+- Bổ sung hướng thiết kế điều kiện cho effect bằng enum mới:
+
+```text
+Assets/scripts/effects/core/EffectConditionType.cs
+```
+
+- Các loại condition hiện chốt cho giai đoạn đầu:
+
+```csharp
+public enum EffectConditionType
+{
+    Always,
+    HeroOnFavoredTerrain,
+    HeroOnSpecificTerrain,
+    HeroHasTag,
+    EnemyHasTag
+}
+```
+
+- Cập nhật `EffectData.cs` để mỗi effect có thể khai báo điều kiện:
+
+```csharp
+[Header("Condition")]
+public EffectConditionType conditionType = EffectConditionType.Always;
+public TerrainData requiredTerrain;
+public TagData requiredTag;
+```
+
+- Quy ước mới:
+  - effect không có điều kiện đặc biệt dùng `conditionType = Always`;
+  - nội tại phụ thuộc địa hình nên dùng `conditionType = HeroOnFavoredTerrain` hoặc `HeroOnSpecificTerrain`;
+  - nội tại chỉ tồn tại khi điều kiện đúng nên dùng `durationType = WhileConditionTrue`, không dùng `Permanent` bừa bãi.
+
+### Đã tạo / đang tạo data effect
+
+Đã bắt đầu tạo folder asset effect:
+
+```text
+Assets/game_data/effects/
+```
+
+Git đang thấy các file/folder mới liên quan:
+
+```text
+Assets/game_data/effects.meta
+Assets/game_data/effects/
+Assets/scripts/effects/core/EffectConditionType.cs
+Assets/scripts/effects/core/EffectConditionType.cs.meta
+```
+
+Đã có chỉnh sửa asset tactic để thử gắn effect:
+
+```text
+Assets/game_data/tactics/entrenched_hold.asset
+Assets/game_data/tactics/river_stake_ambush.asset
+```
+
+### Lưu ý thiết kế quan trọng
+
+- `Permanent` chỉ dùng cho effect thật sự tồn tại lâu dài trong trận sau khi được áp dụng.
+- Passive hero kiểu “đứng trên địa hình phù hợp thì nhận buff” phải dùng:
+
+```text
+Condition Type: HeroOnFavoredTerrain
+Duration Type: WhileConditionTrue
+```
+
+- Không sửa trực tiếp `baseAttack`, `baseDefense`, `baseHealth` của `HeroCardData`.
+- Chỉ số hiện tại sau này phải được tính từ:
+
+```text
+base stat + effect đang có hiệu lực + terrain/passive/tactic hợp lệ
+```
+
+### Trạng thái Git tại thời điểm cập nhật
+
+Các file đã sửa nhưng chưa commit:
+
+```text
+modified:   Assets/game_data/tactics/entrenched_hold.asset
+modified:   Assets/game_data/tactics/river_stake_ambush.asset
+modified:   Assets/scripts/effects/core/EffectData.cs
+```
+
+Các file mới cần `git add`:
+
+```text
+Assets/game_data/effects.meta
+Assets/game_data/effects/
+Assets/scripts/effects/core/EffectConditionType.cs
+Assets/scripts/effects/core/EffectConditionType.cs.meta
+```
+
+### Lệnh Git nên dùng
+
+Nếu muốn commit toàn bộ phần effect condition và asset test hiện tại:
+
+```bash
+git add Assets/scripts/effects/core/EffectData.cs
+git add Assets/scripts/effects/core/EffectConditionType.cs Assets/scripts/effects/core/EffectConditionType.cs.meta
+git add Assets/game_data/effects.meta Assets/game_data/effects
+git add Assets/game_data/tactics/entrenched_hold.asset Assets/game_data/tactics/river_stake_ambush.asset
+git commit -m "feat(effects): add conditional effect support"
+```
+
+### Việc cần làm tiếp
+
+```text
+1. Mở Unity kiểm tra compile sau khi thêm EffectConditionType.cs.
+2. Kiểm tra Inspector của các effect asset trong Assets/game_data/effects.
+3. Với tactic effect ngắn hạn, dùng UntilEndOfTurn hoặc duration phù hợp.
+4. Với hero passive phụ thuộc địa hình, dùng WhileConditionTrue + conditionType phù hợp.
+5. Gắn thử effect vào passiveEffects của 1 hero và tacticEffects của 1-2 tactic.
+6. Test lại deck preview xem effect name/target/stat/duration có hiển thị đúng không.
+7. Sau khi data effect ổn mới bắt đầu BattleInitializer.
+```
+
+---
+
 ## 2026-05-22 — Chuyển AI deck và preview tactic sang hệ thống EffectData
 
 ### Bối cảnh
@@ -901,27 +1033,36 @@ StatCalculator.cs
 - Cộng/trừ effect đang active.
 - Có nhân `value * stackCount`.
 
-### Chưa làm
+### Trạng thái sau cập nhật 2026-05-24
 
-Chưa tạo folder:
+Đã bắt đầu tạo folder asset effect:
 
 ```text
 Assets/game_data/effects/
 ```
 
-Chưa tạo effect asset:
+Đã bổ sung điều kiện cho effect:
+
+```text
+Assets/scripts/effects/core/EffectConditionType.cs
+```
+
+Các effect asset cụ thể trong `Assets/game_data/effects/` cần tiếp tục kiểm tra trong Unity Inspector, đặc biệt các asset test kiểu:
 
 ```text
 attack_plus_2
 defense_plus_2
 attack_minus_2
 defense_minus_2
-rage_attack_plus_1
 ```
 
-Chưa gắn effect asset vào tactic card.
+Còn cần làm:
 
-Chưa test effect module bằng `EffectTestRunner`.
+```text
+1. Gắn effect asset đầy đủ vào tacticEffects của các tactic card.
+2. Gắn effect asset hợp lý vào passiveEffects của hero.
+3. Test effect module bằng EffectTestRunner hoặc test trong battle runtime sau này.
+```
 
 ---
 
@@ -1153,16 +1294,24 @@ Cách đúng:
 Cần làm:
 
 ```text
-1. Tạo folder Assets/game_data/effects.
-2. Tạo asset Stat Modifier:
+1. Kiểm tra Assets/game_data/effects đã được tạo đúng và có file .meta.
+2. Kiểm tra/tạo các asset Stat Modifier:
    - attack_plus_2
    - defense_plus_2
    - attack_minus_2
    - defense_minus_2
-3. Set Inspector đúng cho từng asset.
-4. Gắn effect vào 2 đến 4 tactic card.
-5. Tạo EffectTestRunner hoặc test tạm.
-6. Kiểm tra:
+3. Set Inspector đúng cho từng asset:
+   - targetType
+   - conditionType
+   - durationType
+   - stackingType
+   - statType
+   - value
+4. Với passive phụ thuộc địa hình, dùng WhileConditionTrue + HeroOnFavoredTerrain/HeroOnSpecificTerrain.
+5. Với tactic ngắn hạn, dùng UntilEndOfTurn hoặc duration phù hợp.
+6. Gắn effect vào 2 đến 4 tactic card.
+7. Tạo EffectTestRunner hoặc test tạm.
+8. Kiểm tra:
    - baseAttack = 5
    - add attack_plus_2
    - currentAttack = 7
