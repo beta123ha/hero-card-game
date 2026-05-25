@@ -17,10 +17,8 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: eee9a2199a9f4ca43b1a5b58f9464493, type: 2}
-  attackBonus: 3
-  defenseBonus: 0
-  healthBonus: 0
-  specialEffect: self_damage_1_after_attack
-  effectDescription: Choose 1 friendly hero with shock_assault. That hero gains +3
-    attack this turn. After it attacks this turn, it takes 1 damage.
+  tacticEffects:
+  - {fileID: 11400000, guid: 0cd7177a5efa5474c8c6648fe57749f1, type: 2}
+  effectDescription: Choose 1 friendly hero with Shock Assault. That hero gains +3
+    Attack until end of turn.
   artwork: {fileID: 0}

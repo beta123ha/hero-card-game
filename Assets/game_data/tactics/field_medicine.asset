@@ -16,9 +16,8 @@ MonoBehaviour:
   countryName: Viet Nam
   isShared: 1
   requiredTags: []
-  attackBonus: 0
-  defenseBonus: 0
-  healthBonus: 0
-  specialEffect: heal_target_2
-  effectDescription: Choose 1 friendly hero. That hero recovers 2 remaining hp.
+  tacticEffects:
+  - {fileID: 11400000, guid: ec5518d2f5028eb47a46e7e0d901a99b, type: 2}
+  effectDescription: Choose 1 friendly hero. That hero gains +2 Health until end
+    of turn.
   artwork: {fileID: 0}

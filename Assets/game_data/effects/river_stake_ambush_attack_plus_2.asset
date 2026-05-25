@@ -10,15 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
-  m_Name: attack_plus_2
+  m_Name: river_stake_ambush_attack_plus_2
   m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
-  effectName: Attack +2
-  description: Increase attack by 2.
+  effectName: River Stake Ambush Attack +2
+  description: Increase the selected Naval Warfare hero's attack by 2 until end of
+    turn.
   targetType: 1
+  conditionType: 3
+  requiredTerrain: {fileID: 0}
+  requiredTag: {fileID: 11400000, guid: ae3cf41a8d2a67c4a8eca0f3a513356a, type: 2}
   durationType: 1
   durationTurns: 1
   stackingType: 0
   maxStacks: 1
-  stackKey: attack_bonus
+  stackKey: river_stake_ambush_attack
   statType: 0
   value: 2

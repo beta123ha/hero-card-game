@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
+  m_Name: tran_hung_dao_water_defense_plus_2
+  m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
+  effectName: Tran Hung Dao Water Defense +2
+  description: Increase this hero's defense by 2 while standing on Water.
+  targetType: 0
+  conditionType: 2
+  requiredTerrain: {fileID: 11400000, guid: 0df2b712f96c07e4c9c6863bfd979cc8, type: 2}
+  requiredTag: {fileID: 0}
+  durationType: 3
+  durationTurns: 1
+  stackingType: 0
+  maxStacks: 1
+  stackKey: tran_hung_dao_water_defense
+  statType: 1
+  value: 2

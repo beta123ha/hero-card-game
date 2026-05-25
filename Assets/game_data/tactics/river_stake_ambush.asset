@@ -18,8 +18,7 @@ MonoBehaviour:
   requiredTags:
   - {fileID: 11400000, guid: ae3cf41a8d2a67c4a8eca0f3a513356a, type: 2}
   tacticEffects:
-  - {fileID: 11400000, guid: 8830e3310451f93488ff999b29f8f0f9, type: 2}
-  effectDescription: Choose 1 friendly hero with naval_warfare. That hero gains +2
-    attack this turn. If it attacks an opposing hero this turn, deal 1 extra damage
-    to that opposing hero.
+  - {fileID: 11400000, guid: 9c5f076a77354b4458fb2a1d9bdbb59d, type: 2}
+  effectDescription: Choose 1 friendly hero with Naval Warfare. That hero gains +2
+    Attack until end of turn.
   artwork: {fileID: 0}

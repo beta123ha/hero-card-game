@@ -17,11 +17,9 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: fea3b6b8cebf2804199a4f6b41f008a7, type: 2}
-  attackBonus: 0
-  defenseBonus: 2
-  healthBonus: 2
-  specialEffect: reduce_next_direct_damage_to_player_2
-  effectDescription: Choose 1 friendly hero with guardian. That hero gains +2 defense
-    and +2 health bonus until end of turn. The next direct damage your player would
-    take this turn is reduced by 2.
+  tacticEffects:
+  - {fileID: 11400000, guid: bb0ff09a7d33f1a47af7d82248f44c06, type: 2}
+  - {fileID: 11400000, guid: 6ee6161a0e937d745809d43eb716851a, type: 2}
+  effectDescription: Choose 1 friendly hero with Guardian. That hero gains +2 Defense
+    and +2 Health until end of turn.
   artwork: {fileID: 0}

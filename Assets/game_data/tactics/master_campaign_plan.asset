@@ -17,10 +17,9 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: 3e65d3c700802d24690c58416ae6b1b8, type: 2}
-  attackBonus: 1
-  defenseBonus: 1
-  healthBonus: 0
-  specialEffect: draw_1
-  effectDescription: Choose 1 friendly hero with strategic_mind. That hero gains
-    +1 attack and +1 defense this turn, then draw 1 card.
+  tacticEffects:
+  - {fileID: 11400000, guid: 66e9d8caf8246cb4e96f0ae32af22dfa, type: 2}
+  - {fileID: 11400000, guid: a50f470ea6ea1924a9dbc38a6e7b2066, type: 2}
+  effectDescription: Choose 1 friendly hero with Strategic Mind. That hero gains
+    +1 Attack and +1 Defense until end of turn.
   artwork: {fileID: 0}

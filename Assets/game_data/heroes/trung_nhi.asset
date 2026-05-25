@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Trung Trac
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 4
+  baseDefense: 5
+  baseHealth: 11
   tags:
   - {fileID: 11400000, guid: fea3b6b8cebf2804199a4f6b41f008a7, type: 2}
   - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Sister''s Guard: This hero gains +2 Defense while standing
+    on favored terrain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 20d96f532825f3e4f8a12ddbbe5c9ad9, type: 2}
   artwork: {fileID: 0}

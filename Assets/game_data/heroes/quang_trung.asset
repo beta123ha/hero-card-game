@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Quang Trung
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 7
+  baseDefense: 2
+  baseHealth: 9
   tags:
   - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
   - {fileID: 11400000, guid: eee9a2199a9f4ca43b1a5b58f9464493, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Lightning March: This hero gains +2 Attack while standing
+    on Plain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 06bc7c5ed52379e478755f6d000172a4, type: 2}
   artwork: {fileID: 0}

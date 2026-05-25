@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
+  m_Name: rapid_redeployment_attack_plus_1
+  m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
+  effectName: Rapid Redeployment Attack +1
+  description: Increase the selected Mobile Warfare hero's attack by 1 until end
+    of turn.
+  targetType: 1
+  conditionType: 3
+  requiredTerrain: {fileID: 0}
+  requiredTag: {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
+  durationType: 1
+  durationTurns: 1
+  stackingType: 0
+  maxStacks: 1
+  stackKey: rapid_redeployment_attack
+  statType: 0
+  value: 1

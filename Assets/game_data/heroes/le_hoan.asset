@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Le Hoan
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 5
+  baseDefense: 3
+  baseHealth: 10
   tags:
   - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
   - {fileID: 11400000, guid: 3e65d3c700802d24690c58416ae6b1b8, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Rapid Counterattack: This hero gains +2 Attack while standing
+    on Plain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 5e85ecab56671704bbda1ac4b574b422, type: 2}
   artwork: {fileID: 0}

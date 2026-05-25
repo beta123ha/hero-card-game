@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
+  m_Name: iron_wall_formation_defense_plus_2
+  m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
+  effectName: Iron Wall Formation Defense +2
+  description: Increase the selected Guardian hero's defense by 2 until end of turn.
+  targetType: 1
+  conditionType: 3
+  requiredTerrain: {fileID: 0}
+  requiredTag: {fileID: 11400000, guid: fea3b6b8cebf2804199a4f6b41f008a7, type: 2}
+  durationType: 1
+  durationTurns: 1
+  stackingType: 0
+  maxStacks: 1
+  stackKey: iron_wall_formation_defense
+  statType: 1
+  value: 2

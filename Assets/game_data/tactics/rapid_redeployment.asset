@@ -17,10 +17,9 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
-  attackBonus: 1
-  defenseBonus: 1
-  healthBonus: 0
-  specialEffect: move_one_friendly_hero_to_empty_slot
-  effectDescription: Choose 1 friendly hero with mobile_warfare. Move it to any empty
-    friendly front slot, then it gains +1 attack and +1 defense until end of turn.
+  tacticEffects:
+  - {fileID: 11400000, guid: 6f5260b2c54e6f84c966a34d488ccf12, type: 2}
+  - {fileID: 11400000, guid: f3939ecbf70e9fc4390297f7e9f9212a, type: 2}
+  effectDescription: Choose 1 friendly hero with Mobile Warfare. That hero gains
+    +1 Attack and +1 Defense until end of turn.
   artwork: {fileID: 0}

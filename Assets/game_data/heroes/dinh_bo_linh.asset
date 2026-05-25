@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: dinh_bo_linh
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: DInh Bo Linh
-  countryName: 
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  countryName: Viet Nam
+  baseAttack: 5
+  baseDefense: 4
+  baseHealth: 12
   tags:
   - {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
   - {fileID: 11400000, guid: ef45cc3106235d14e9b4b82d81805523, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Twelve Warlords Unifier: This hero gains +2 Attack while standing
+    on favored terrain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 344c6066e354e6c40bf9651caf43dc61, type: 2}
   artwork: {fileID: 0}

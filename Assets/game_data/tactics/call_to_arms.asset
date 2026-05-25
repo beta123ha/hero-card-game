@@ -16,10 +16,9 @@ MonoBehaviour:
   countryName: Viet Nam
   isShared: 1
   requiredTags: []
-  attackBonus: 1
-  defenseBonus: 1
-  healthBonus: 0
-  specialEffect: 
+  tacticEffects:
+  - {fileID: 11400000, guid: 02e779da842d6914d86608149b3e025c, type: 2}
+  - {fileID: 11400000, guid: 6ef8d869836944045a0bf42b4bdf17c6, type: 2}
   effectDescription: Choose 1 friendly hero. That hero gains +1 attack and +1 defense
     until end of turn.
   artwork: {fileID: 0}

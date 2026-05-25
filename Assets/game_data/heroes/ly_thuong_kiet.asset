@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Ly Thuong Kiet
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 4
+  baseDefense: 5
+  baseHealth: 11
   tags:
   - {fileID: 11400000, guid: 3e9a7100a06ef524a9f49c7093612aa0, type: 2}
   - {fileID: 11400000, guid: 3e65d3c700802d24690c58416ae6b1b8, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Preemptive Defense: This hero gains +2 Defense while standing
+    on High-land.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 4d76b5ed4a43acb4fb5a967b5931c06d, type: 2}
   artwork: {fileID: 0}

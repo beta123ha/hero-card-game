@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
-  m_Name: defense_minus_2
+  m_Name: call_to_arms_defense_plus_1
   m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
-  effectName: Defense -2
-  description: Reduce enemy defense by 2.
+  effectName: Call To Arms Defense +1
+  description: Increase the selected friendly hero's defense by 1 until end of turn.
   targetType: 1
+  conditionType: 0
+  requiredTerrain: {fileID: 0}
+  requiredTag: {fileID: 0}
   durationType: 1
   durationTurns: 1
   stackingType: 0
   maxStacks: 1
-  stackKey: defense_debuff
+  stackKey: call_to_arms_defense
   statType: 1
-  value: -2
+  value: 1

@@ -6,6 +6,412 @@
 
 ---
 
+## 2026-05-25 — Chốt dữ liệu tạm thời cho hero và tactic trước khi làm battle
+
+### Bối cảnh
+
+- Trước khi bắt đầu làm `battle` screen và battle runtime thật, cần hoàn thiện bộ lá bài tạm thời để test tổng thể.
+- Mục tiêu hiện tại không phải tạo full card pool cuối cùng, mà là có một bộ dữ liệu đủ sạch, đủ cân bằng và dùng đúng kiến trúc `EffectData`.
+- Người dùng kiểm tra trực tiếp trong Unity Inspector và xác nhận:
+  - `AIPlayStyleProfile.playStyle` đang hiển thị bằng tên enum như `Aggressive`, không phải người dùng phải nhập `0/1/2`;
+  - `HeroCardData` hiện đang dùng field mới `passiveDescription` và `passiveEffects`, không còn 4 field mô tả cũ trong Inspector.
+
+### Đã chốt trong chat
+
+- Tạm thời hoàn thiện card pool hiện có của `Viet Nam` trước:
+  - 16 hero asset;
+  - 10 tactic asset.
+- Khi vào trận test đầu tiên vẫn theo luật đã chốt:
+  - chọn 15 hero;
+  - chọn 9 tactic.
+- Các chỉ số hero tạm thời nằm trong khoảng dễ test:
+  - `baseAttack`: 3–7;
+  - `baseDefense`: 2–6;
+  - `baseHealth`: 9–13.
+- Mỗi hero tạm thời dùng 1 passive đơn giản bằng `StatModifierEffectData`.
+- Tactic giai đoạn đầu chỉ dùng các hiệu ứng tăng chỉ số đơn giản:
+  - Attack;
+  - Defense;
+  - Health.
+- Chưa làm thật các tactic/effect phức tạp như:
+  - hồi máu thật;
+  - rút bài;
+  - di chuyển hero bằng tactic;
+  - hồi sinh;
+  - che thông tin;
+  - sát thương đặc biệt;
+  - giảm sát thương trực tiếp lên người chơi.
+
+### Quy ước nhập hero tạm thời
+
+Tất cả hero tạm thời dùng:
+
+```text
+Country Name: Viet Nam
+```
+
+Quy ước passive hero:
+
+```text
+Target Type: SelfHero
+Duration Type: WhileConditionTrue
+Duration Turns: 1
+Stacking Type: NotStackableKeepStrongest
+Max Stacks: 1
+```
+
+Nếu passive phụ thuộc địa hình cụ thể:
+
+```text
+Condition Type: HeroOnSpecificTerrain
+Required Terrain: Plain / Water / High-land
+```
+
+Nếu passive phụ thuộc địa hình phù hợp với tag của hero:
+
+```text
+Condition Type: HeroOnFavoredTerrain
+Required Terrain: None
+```
+
+### Bảng hero tạm thời đã chốt
+
+```text
+1. Dinh Bo Linh
+- Asset: dinh_bo_linh
+- Stats: ATK 5 / DEF 4 / HP 12
+- Tags: brute_force, land_warfare
+- Passive: Twelve Warlords Unifier
+- Effect asset: dinh_bo_linh_favored_terrain_attack_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Attack +2
+
+2. Ngo Quyen
+- Asset: ngo_quyen
+- Stats: ATK 5 / DEF 4 / HP 10
+- Tags: naval_warfare, positional_warfare
+- Passive: Bach Dang Ambush
+- Effect asset: ngo_quyen_water_attack_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Water
+- Stat: Attack +2
+
+3. Tran Hung Dao
+- Asset: tran_hung_dao
+- Stats: ATK 4 / DEF 5 / HP 12
+- Tags: naval_warfare, strategic_mind
+- Passive: River Defense
+- Effect asset: tran_hung_dao_water_defense_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Water
+- Stat: Defense +2
+
+4. Ly Thuong Kiet
+- Asset: ly_thuong_kiet
+- Stats: ATK 4 / DEF 5 / HP 11
+- Tags: positional_warfare, strategic_mind
+- Passive: Preemptive Defense
+- Effect asset: ly_thuong_kiet_high_land_defense_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = High-land
+- Stat: Defense +2
+
+5. Le Hoan
+- Asset: le_hoan
+- Stats: ATK 5 / DEF 3 / HP 10
+- Tags: mobile_warfare, strategic_mind
+- Passive: Rapid Counterattack
+- Effect asset: le_hoan_plain_attack_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Plain
+- Stat: Attack +2
+
+6. Le Loi
+- Asset: le_loi
+- Stats: ATK 5 / DEF 4 / HP 11
+- Tags: land_warfare, mobile_warfare
+- Passive: Lam Son Uprising
+- Effect asset: le_loi_favored_terrain_attack_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Attack +2
+
+7. Nguyen Trai
+- Asset: nguyen_trai
+- Stats: ATK 3 / DEF 5 / HP 11
+- Tags: strategic_mind, guardian
+- Passive: Strategic Counsel
+- Effect asset: nguyen_trai_favored_terrain_defense_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Defense +2
+
+8. Pham Ngu Lao
+- Asset: pham_ngu_lao
+- Stats: ATK 6 / DEF 3 / HP 10
+- Tags: land_warfare, shock_assault
+- Passive: Frontline Charge
+- Effect asset: pham_ngu_lao_plain_attack_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Plain
+- Stat: Attack +2
+
+9. Quang Trung
+- Asset: quang_trung
+- Stats: ATK 7 / DEF 2 / HP 9
+- Tags: mobile_warfare, shock_assault
+- Passive: Lightning March
+- Effect asset: quang_trung_plain_attack_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Plain
+- Stat: Attack +2
+
+10. Tran Quang Khai
+- Asset: tran_quang_khai
+- Stats: ATK 4 / DEF 4 / HP 11
+- Tags: land_warfare, strategic_mind
+- Passive: Stabilize Front
+- Effect asset: tran_quang_khai_favored_terrain_defense_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Defense +2
+
+11. Tran Quoc Toan
+- Asset: tran_quoc_toan
+- Stats: ATK 6 / DEF 2 / HP 9
+- Tags: shock_assault, land_warfare
+- Passive: Youthful Resolve
+- Effect asset: tran_quoc_toan_favored_terrain_attack_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Attack +2
+
+12. Trieu Thi Trinh
+- Asset: trieu_thi_trinh
+- Stats: ATK 6 / DEF 3 / HP 10
+- Tags: brute_force, shock_assault
+- Passive: Fearless Assault
+- Effect asset: trieu_thi_trinh_plain_attack_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = Plain
+- Stat: Attack +2
+
+13. Trung Trac
+- Asset: trung_trac
+- Stats: ATK 5 / DEF 4 / HP 11
+- Tags: guardian, shock_assault
+- Passive: Rising Banner
+- Effect asset: trung_trac_favored_terrain_defense_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Defense +2
+
+14. Trung Nhi
+- Asset: trung_nhi
+- Stats: ATK 4 / DEF 5 / HP 11
+- Tags: guardian, mobile_warfare
+- Passive: Sister's Guard
+- Effect asset: trung_nhi_favored_terrain_defense_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Defense +2
+
+15. Vo Nguyen Giap
+- Asset: vo_nguyen_giap
+- Stats: ATK 4 / DEF 5 / HP 12
+- Tags: land_warfare, strategic_mind
+- Passive: People's War
+- Effect asset: vo_nguyen_giap_high_land_defense_plus_2
+- Condition: HeroOnSpecificTerrain, Required Terrain = High-land
+- Stat: Defense +2
+
+16. Ho Chi Minh
+- Asset: ho_chi_minh
+- Stats: ATK 3 / DEF 5 / HP 12
+- Tags: strategic_mind, guardian
+- Passive: National Resolve
+- Effect asset: ho_chi_minh_favored_terrain_defense_plus_2
+- Condition: HeroOnFavoredTerrain
+- Stat: Defense +2
+```
+
+### Bộ 15 hero nên chọn cho trận test đầu tiên
+
+```text
+1. Dinh Bo Linh
+2. Ngo Quyen
+3. Tran Hung Dao
+4. Ly Thuong Kiet
+5. Le Hoan
+6. Le Loi
+7. Nguyen Trai
+8. Pham Ngu Lao
+9. Quang Trung
+10. Tran Quang Khai
+11. Tran Quoc Toan
+12. Trieu Thi Trinh
+13. Trung Trac
+14. Trung Nhi
+15. Vo Nguyen Giap
+```
+
+Tạm thời chưa đưa `Ho Chi Minh` vào deck test đầu tiên vì hero này hợp hơn với effect hỗ trợ đồng minh/toàn bàn, nên nên để dành cho giai đoạn sau khi battle runtime đã ổn hơn.
+
+### Quy ước nhập tactic tạm thời
+
+Tất cả tactic tạm thời dùng:
+
+```text
+Country Name: Viet Nam
+```
+
+Với tactic buff đồng minh:
+
+```text
+Target Type: SelectedAllyHero
+Duration Type: UntilEndOfTurn
+Duration Turns: 1
+Stacking Type: NotStackableKeepStrongest
+Max Stacks: 1
+```
+
+Với tactic dùng chung:
+
+```text
+Condition Type: Always
+Required Tags: empty
+```
+
+Với tactic yêu cầu tag:
+
+```text
+Condition Type: HeroHasTag
+Required Tag: tag tương ứng
+```
+
+### Bảng tactic tạm thời đã chốt
+
+```text
+1. Call To Arms
+- Asset: call_to_arms
+- Is Shared: true
+- Required Tags: empty
+- Effect Description: Choose 1 friendly hero. That hero gains +1 Attack and +1 Defense until end of turn.
+- Effect assets:
+  - call_to_arms_attack_plus_1: Attack +1
+  - call_to_arms_defense_plus_1: Defense +1
+
+2. Field Medicine
+- Asset: field_medicine
+- Is Shared: true
+- Required Tags: empty
+- Effect Description: Choose 1 friendly hero. That hero gains +2 Health until end of turn.
+- Effect asset:
+  - field_medicine_health_plus_2: Health +2
+- Note: đây chưa phải hồi máu thật, chỉ là tăng Health tạm thời để test stat effect.
+
+3. River Stake Ambush
+- Asset: river_stake_ambush
+- Is Shared: false
+- Required Tags: naval_warfare
+- Effect Description: Choose 1 friendly hero with Naval Warfare. That hero gains +2 Attack until end of turn.
+- Effect asset:
+  - river_stake_ambush_attack_plus_2: Attack +2
+
+4. Entrenched Hold
+- Asset: entrenched_hold
+- Is Shared: false
+- Required Tags: positional_warfare
+- Effect Description: Choose 1 friendly hero with Positional Warfare. That hero gains +3 Defense until end of turn.
+- Effect asset:
+  - entrenched_hold_defense_plus_3: Defense +3
+
+5. Terrain Offensive
+- Asset: terrain_offensive
+- Is Shared: false
+- Required Tags: land_warfare
+- Effect Description: Choose 1 friendly hero with Land Warfare. That hero gains +2 Attack and +1 Defense until end of turn.
+- Effect assets:
+  - terrain_offensive_attack_plus_2: Attack +2
+  - terrain_offensive_defense_plus_1: Defense +1
+
+6. Thunder Charge
+- Asset: thunder_charge
+- Is Shared: false
+- Required Tags: shock_assault
+- Effect Description: Choose 1 friendly hero with Shock Assault. That hero gains +3 Attack until end of turn.
+- Effect asset:
+  - thunder_charge_attack_plus_3: Attack +3
+
+7. Iron Wall Formation
+- Asset: iron_wall_formation
+- Is Shared: false
+- Required Tags: guardian
+- Effect Description: Choose 1 friendly hero with Guardian. That hero gains +2 Defense and +2 Health until end of turn.
+- Effect assets:
+  - iron_wall_formation_defense_plus_2: Defense +2
+  - iron_wall_formation_health_plus_2: Health +2
+
+8. Master Campaign Plan
+- Asset: master_campaign_plan
+- Is Shared: false
+- Required Tags: strategic_mind
+- Effect Description: Choose 1 friendly hero with Strategic Mind. That hero gains +1 Attack and +1 Defense until end of turn.
+- Effect assets:
+  - master_campaign_plan_attack_plus_1: Attack +1
+  - master_campaign_plan_defense_plus_1: Defense +1
+
+9. Rapid Redeployment
+- Asset: rapid_redeployment
+- Is Shared: false
+- Required Tags: mobile_warfare
+- Effect Description: Choose 1 friendly hero with Mobile Warfare. That hero gains +1 Attack and +1 Defense until end of turn.
+- Effect assets:
+  - rapid_redeployment_attack_plus_1: Attack +1
+  - rapid_redeployment_defense_plus_1: Defense +1
+
+10. Overwhelming Force
+- Asset: overwhelming_force
+- Is Shared: false
+- Required Tags: brute_force
+- Effect Description: Choose 1 friendly hero with Brute Force. That hero gains +3 Attack until end of turn.
+- Effect asset:
+  - overwhelming_force_attack_plus_3: Attack +3
+```
+
+### Bộ 9 tactic nên chọn cho trận test đầu tiên
+
+```text
+1. Call To Arms
+2. River Stake Ambush
+3. Entrenched Hold
+4. Terrain Offensive
+5. Thunder Charge
+6. Iron Wall Formation
+7. Master Campaign Plan
+8. Rapid Redeployment
+9. Overwhelming Force
+```
+
+Tạm thời chưa chọn `Field Medicine` trong trận test đầu tiên để tránh nhầm giữa `Health +2` tạm thời và hồi máu thật.
+
+### Việc cần làm tiếp
+
+```text
+1. Nhập/sửa đầy đủ hero stats, tags, passiveDescription trong Unity Inspector.
+2. Tạo đầy đủ effect asset trong Assets/game_data/effects.
+3. Gán effect asset vào passiveEffects của từng hero.
+4. Gán effect asset vào tacticEffects của từng tactic.
+5. Kiểm tra lại requiredTags của tactic.
+6. Chạy từ scene menu để test:
+   menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle
+7. Kiểm tra deck_setup:
+   - chọn được đúng 15 hero + 9 tactic;
+   - tactic bị lock/unlock đúng theo requiredTags.
+8. Kiểm tra opponent_deck_preview:
+   - hero hiển thị đúng chỉ số;
+   - tactic hiển thị đúng effect từ tacticEffects.
+9. Sau khi data card ổn mới bắt đầu BattleInitializer.
+```
+
+### Lưu ý quan trọng
+
+- Không cần tạo class C# riêng cho từng effect như `AttackPlus2Effect.cs`.
+- Mọi effect tăng/giảm chỉ số giai đoạn này vẫn dùng chung `StatModifierEffectData`.
+- Mỗi effect cụ thể là một asset trong `Assets/game_data/effects`.
+- Không sửa trực tiếp stat gốc trong runtime.
+- Không quay lại dùng `attackBonus`, `defenseBonus`, `healthBonus` trong `TacticCardData`.
+- Chưa ghi trong tài liệu rằng toàn bộ asset đã nhập xong nếu người dùng mới chỉ chốt thông tin; cần kiểm tra lại trực tiếp trong Unity trước khi commit data asset.
+
+---
+
 ## 2026-05-24 — Thêm điều kiện cho EffectData và bắt đầu tạo effect asset
 
 ### Bối cảnh

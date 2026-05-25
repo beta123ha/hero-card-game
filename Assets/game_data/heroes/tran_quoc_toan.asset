@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Tran Quoc Toan
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 6
+  baseDefense: 2
+  baseHealth: 9
   tags:
   - {fileID: 11400000, guid: eee9a2199a9f4ca43b1a5b58f9464493, type: 2}
   - {fileID: 11400000, guid: ef45cc3106235d14e9b4b82d81805523, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Youthful Resolve: This hero gains +2 Attack while standing
+    on favored terrain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 76a53b81cd8f9814893d3c62237bcfa1, type: 2}
   artwork: {fileID: 0}

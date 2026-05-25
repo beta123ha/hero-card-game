@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Trieu Thi Trinh
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 6
+  baseDefense: 3
+  baseHealth: 10
   tags:
   - {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
   - {fileID: 11400000, guid: eee9a2199a9f4ca43b1a5b58f9464493, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Fearless Assault: This hero gains +2 Attack while standing
+    on Plain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 8836e665cf6a7a3479bc32d6aca19035, type: 2}
   artwork: {fileID: 0}

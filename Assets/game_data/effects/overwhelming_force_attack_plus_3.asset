@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 564a3b31d754754439ca32a35c628698, type: 3}
+  m_Name: overwhelming_force_attack_plus_3
+  m_EditorClassIdentifier: Assembly-CSharp::StatModifierEffectData
+  effectName: Overwhelming Force Attack +3
+  description: Increase the selected Brute Force hero's attack by 3 until end of
+    turn.
+  targetType: 1
+  conditionType: 0
+  requiredTerrain: {fileID: 0}
+  requiredTag: {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
+  durationType: 1
+  durationTurns: 1
+  stackingType: 0
+  maxStacks: 1
+  stackKey: overwhelming_force_attack
+  statType: 0
+  value: 3

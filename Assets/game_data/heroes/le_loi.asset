@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Le Loi
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 5
+  baseDefense: 4
+  baseHealth: 11
   tags:
   - {fileID: 11400000, guid: ef45cc3106235d14e9b4b82d81805523, type: 2}
   - {fileID: 11400000, guid: 4aa11a7fe045679478d83b9f7daef774, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Lam Son Uprising: This hero gains +2 Attack while standing
+    on favored terrain.'
+  passiveEffects:
+  - {fileID: 11400000, guid: ccad37641d6202f478653f5673f228dd, type: 2}
   artwork: {fileID: 0}

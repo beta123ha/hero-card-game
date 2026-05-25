@@ -17,11 +17,8 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: 28c2df690ff3a64448e82a3b6a2cee23, type: 2}
-  attackBonus: 3
-  defenseBonus: 0
-  healthBonus: 0
-  specialEffect: opposing_hero_defense_minus_2_this_turn
-  effectDescription: Choose 1 friendly hero with brute_force. That hero gains +3
-    attack this turn. If it attacks an opposing hero this turn, that opposing hero
-    has -2 defense for that combat.
+  tacticEffects:
+  - {fileID: 11400000, guid: 3fc76893904f87740a3ff75ece3b44e5, type: 2}
+  effectDescription: Choose 1 friendly hero with Brute Force. That hero gains +3
+    Attack until end of turn.
   artwork: {fileID: 0}

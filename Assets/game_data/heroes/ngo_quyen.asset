@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroCardData
   heroName: Ngo Quyen
   countryName: Viet Nam
-  baseAttack: 1
-  baseDefense: 1
-  baseHealth: 1
+  baseAttack: 5
+  baseDefense: 4
+  baseHealth: 10
   tags:
   - {fileID: 11400000, guid: ae3cf41a8d2a67c4a8eca0f3a513356a, type: 2}
   - {fileID: 11400000, guid: 3e9a7100a06ef524a9f49c7093612aa0, type: 2}
-  passiveDescription1: 
-  passiveDescription2: 
-  passiveDescription3: 
-  passiveDescription4: 
+  passiveDescription: 'Bach Dang Ambush: This hero gains +2 Attack while standing
+    on Water.'
+  passiveEffects:
+  - {fileID: 11400000, guid: 5d35b455d86765a42b3c3bda65dd33ea, type: 2}
   artwork: {fileID: 0}

@@ -18,8 +18,7 @@ MonoBehaviour:
   requiredTags:
   - {fileID: 11400000, guid: 3e9a7100a06ef524a9f49c7093612aa0, type: 2}
   tacticEffects:
-  - {fileID: 11400000, guid: 30c10c144b867514b8db038c54313cf9, type: 2}
-  effectDescription: Choose 1 friendly hero with positional_warfare. That hero gains
-    +3 defense this turn. The first time it would take collision damage from a non-breaking
-    attack this turn, ignore that damage.
+  - {fileID: 11400000, guid: c3472ca29d8ab07408ddea5600cc9f12, type: 2}
+  effectDescription: Choose 1 friendly hero with Positional Warfare. That hero gains
+    +3 Defense until end of turn.
   artwork: {fileID: 0}

@@ -17,10 +17,9 @@ MonoBehaviour:
   isShared: 0
   requiredTags:
   - {fileID: 11400000, guid: ef45cc3106235d14e9b4b82d81805523, type: 2}
-  attackBonus: 2
-  defenseBonus: 1
-  healthBonus: 0
-  specialEffect: 
-  effectDescription: ' Choose 1 friendly hero with land_warfare. That hero gains
-    +2 attack and +1 defense until end of turn.'
+  tacticEffects:
+  - {fileID: 11400000, guid: 6ea5c9a5b29dd82458778bea26efad00, type: 2}
+  - {fileID: 11400000, guid: 3bf6e406d1151504780f81a8f1342005, type: 2}
+  effectDescription: Choose 1 friendly hero with Land Warfare. That hero gains +2
+    Attack and +1 Defense until end of turn.
   artwork: {fileID: 0}
