@@ -23,5 +23,5 @@ MonoBehaviour:
   passiveDescription: 'National Resolve: This hero gains +2 Defense while standing
     on favored terrain.'
   passiveEffects:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 04190bfff9606bc48be7984104308cbc, type: 2}
   artwork: {fileID: 0}

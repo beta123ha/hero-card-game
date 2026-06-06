@@ -22,6 +22,6 @@ MonoBehaviour:
   durationTurns: 1
   stackingType: 0
   maxStacks: 1
-  stackKey: 
+  stackKey: pham_ngu_lao_plain_attack
   statType: 0
   value: 2

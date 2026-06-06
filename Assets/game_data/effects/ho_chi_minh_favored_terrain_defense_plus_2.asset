@@ -18,7 +18,7 @@ MonoBehaviour:
   conditionType: 1
   requiredTerrain: {fileID: 0}
   requiredTag: {fileID: 0}
-  durationType: 1
+  durationType: 3
   durationTurns: 1
   stackingType: 0
   maxStacks: 1

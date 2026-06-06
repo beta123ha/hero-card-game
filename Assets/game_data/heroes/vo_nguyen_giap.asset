@@ -23,5 +23,5 @@ MonoBehaviour:
   passiveDescription: 'People''s War: This hero gains +2 Defense while standing on
     High-land.'
   passiveEffects:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: fc2ad831a72010d449efdcfa51a6e266, type: 2}
   artwork: {fileID: 0}
