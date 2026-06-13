@@ -1,13 +1,190 @@
 # PROJECT_CONTEXT.md — Hero Card Game
 
-> Cập nhật gần nhất: 2026-05-25  
+> Cập nhật gần nhất: 2026-06-13  
 > Mục đích file này: giúp người hỗ trợ đọc nhanh tình trạng thật của project, tránh hướng dẫn sai tên scene, tên folder, tên script, tên biến hoặc viết lệch kiến trúc hiện tại.
 
 ---
 
-## 0. Cập nhật mới nhất — 2026-05-25
+## 0. Cập nhật mới nhất — 2026-06-13
 
-Mốc mới nhất của project là **chốt dữ liệu tạm thời cho hero và tactic card trước khi bắt đầu làm battle screen/battle runtime**.
+Mốc mới nhất của project là **khởi tạo battle runtime foundation và hiển thị board slots trong scene `battle`**.
+
+### Lý do cập nhật
+
+- Người dùng đã xác nhận đã fix xong các card và effect tạm thời.
+- Project đã đủ dữ liệu cơ bản để bắt đầu làm battle runtime.
+- Mục tiêu mốc này là tạo nền trận đấu thật trước, chưa làm combat hoặc AI battle sâu.
+- Battle hiện cần đọc dữ liệu từ `GameSession`, tạo trạng thái trận và render board theo terrain đã khóa từ `terrain_setup`.
+
+### Trạng thái mới của battle
+
+Battle không còn chỉ là UI HP tạm nữa. Hiện đã bắt đầu có runtime state thật gồm:
+
+```text
+BattleState
+BattlePlayerState
+BattleCardInstance
+BattleHeroInstance
+BattleBoardSlot
+BattleTacticSlot
+BattleInitializer
+BattleBoardSlotUI
+```
+
+### Runtime battle đã có
+
+Đã tạo module battle runtime trong:
+
+```text
+Assets/scripts/battle/
+Assets/scripts/battle/core/
+```
+
+Các file battle runtime mới:
+
+```text
+Assets/scripts/battle/BattleInitializer.cs
+Assets/scripts/battle/core/BattleCardType.cs
+Assets/scripts/battle/core/BattleCardInstance.cs
+Assets/scripts/battle/core/BattleHeroInstance.cs
+Assets/scripts/battle/core/BattleBoardSlot.cs
+Assets/scripts/battle/core/BattleTacticSlot.cs
+Assets/scripts/battle/core/BattlePlayerState.cs
+Assets/scripts/battle/core/BattleState.cs
+```
+
+### UI battle đã mở rộng
+
+Đã thêm:
+
+```text
+Assets/scripts/ui/BattleBoardSlotUI.cs
+```
+
+Đã sửa:
+
+```text
+Assets/scripts/ui/BattleUIController.cs
+Assets/scenes/battle.unity
+```
+
+`BattleUIController` hiện nhận `BattleState` và hiển thị:
+
+```text
+player HP
+enemy HP
+turn number + current side
+player deck count
+player hand count
+player graveyard count
+enemy deck count
+enemy hand count
+enemy graveyard count
+7 player board slots
+7 enemy board slots
+```
+
+Mỗi `BattleBoardSlotUI` hiển thị:
+
+```text
+slot index
+terrain name
+hero name hoặc Empty
+hero ATK/DEF
+hero HP
+```
+
+### Luồng khởi tạo battle hiện tại
+
+Khi vào scene `battle`, `BattleInitializer` làm:
+
+```text
+1. Kiểm tra GameSession.Instance.
+2. Tạo BattlePlayerState cho player từ:
+   - GameSession.Instance.selectedHeroes
+   - GameSession.Instance.selectedTactics
+   - GameSession.Instance.playerTerrainOrder
+3. Tạo BattlePlayerState cho enemy từ:
+   - GameSession.Instance.enemySelectedHeroes
+   - GameSession.Instance.enemySelectedTactics
+   - GameSession.Instance.enemyTerrainOrder
+4. Mỗi bên bắt đầu với 100 HP.
+5. Mỗi bên tạo deck runtime từ hero + tactic đã chọn.
+6. Mỗi bên shuffle deck.
+7. Mỗi bên rút 5 lá đầu.
+8. Random người đi trước.
+9. Gửi BattleState sang BattleUIController để render UI.
+```
+
+### Kết quả test kỳ vọng
+
+Nếu chạy đúng flow:
+
+```text
+menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle
+```
+
+Kết quả kỳ vọng trong `battle`:
+
+```text
+Player HP: 100
+Enemy HP: 100
+Turn 1: Player hoặc Enemy
+Player Deck: 19
+Player Hand: 5
+Player Graveyard: 0
+Enemy Deck: 19
+Enemy Hand: 5
+Enemy Graveyard: 0
+7 player board slots hiện đúng terrain đã khóa
+7 enemy board slots hiện đúng terrain đã khóa
+Các slot chưa có hero thì hiện Empty
+```
+
+Vì mỗi deck runtime có 24 lá và đã rút 5 lá đầu:
+
+```text
+24 - 5 = 19
+```
+
+### Chưa làm trong battle
+
+```text
+1. Chưa render bài trên tay player.
+2. Chưa click chọn card trên tay.
+3. Chưa deploy hero xuống board.
+4. Chưa di chuyển hero giữa các ô.
+5. Chưa đặt/kích hoạt tactic.
+6. Chưa có phase/turn manager hoàn chỉnh.
+7. Chưa có combat resolver.
+8. Chưa nối hero passiveEffects vào runtime theo condition.
+9. Chưa nối tacticEffects vào runtime.
+10. Chưa nối terrain bonus/effect vào tính chỉ số thật trong battle.
+11. Chưa có AI battle planner/scorer.
+```
+
+### Việc làm tiếp ngay sau mốc này
+
+Mốc nhỏ tiếp theo nên làm là **hiển thị hand và deploy hero cơ bản**:
+
+```text
+1. Tạo BattleHandCardUI.
+2. Render player hand gồm 5 lá đã rút.
+3. Click chọn 1 hero card trên tay.
+4. Click 1 ô player board trống để deploy hero.
+5. Khi deploy:
+   - tạo BattleHeroInstance;
+   - đặt vào BattleBoardSlot;
+   - xóa card khỏi hand;
+   - update lại UI.
+6. Sau khi deploy ổn mới làm turn phase và combat.
+```
+
+---
+
+## 0.1. Mốc trước — 2026-05-25
+
+Mốc này là **chốt dữ liệu tạm thời cho hero và tactic card trước khi bắt đầu làm battle screen/battle runtime**.
 
 ### Lý do cập nhật
 
@@ -527,7 +704,7 @@ Field Medicine hiện mới là Health +2 tạm thời, chưa phải hồi máu 
 
 ---
 
-## 0.1. Mốc trước — 2026-05-24
+## 0.2. Mốc trước — 2026-05-24
 
 Mốc mới nhất của project là bổ sung **điều kiện kích hoạt effect** để hero passive không bị hiểu nhầm là buff vĩnh viễn vô điều kiện.
 
@@ -645,7 +822,7 @@ Assets/game_data/tactics/river_stake_ambush.asset
 
 ---
 
-## 0.2. Mốc trước — 2026-05-22
+## 0.3. Mốc trước — 2026-05-22
 
 Mốc mới nhất của project là chuyển hệ thống hiệu ứng của **hero passive** và **tactic card** sang hướng dùng `ScriptableObject` effect.
 
@@ -1897,33 +2074,66 @@ Setup Time = 15
 Enemy Swap Interval = 1.5
 ```
 
-### 9.7. BattleUIController
+### 9.7. BattleUIController và BattleBoardSlotUI
 
 File:
 
 ```text
 Assets/scripts/ui/BattleUIController.cs
+Assets/scripts/ui/BattleBoardSlotUI.cs
 ```
 
-Hiện trạng:
+Trạng thái cập nhật 2026-06-13:
 
-- Đây mới là UI battle rất đơn giản.
-- Có biến tạm:
-  - `playerHp = 100`
-  - `enemyHp = 100`
-- Hiển thị:
-  - Player HP
-  - Enemy HP
-  - Turn: Player
-- Có hàm `backToMenu()`.
-- Chưa đọc `GameSession`.
-- Chưa tạo deck runtime.
-- Chưa shuffle.
-- Chưa draw 5.
-- Chưa random turn.
-- Chưa có board/hand/combat/effect trong battle.
+- `BattleUIController` không còn chỉ hiển thị HP tạm.
+- `BattleUIController` hiện nhận `BattleState` qua hàm:
 
----
+```csharp
+public void ShowBattleState(BattleState battleState)
+```
+
+- UI battle hiện hiển thị được:
+
+```text
+player HP
+enemy HP
+turn number + current side
+player deck count
+player hand count
+player graveyard count
+enemy deck count
+enemy hand count
+enemy graveyard count
+player board slots
+enemy board slots
+```
+
+- `BattleBoardSlotUI` dùng để hiển thị từng ô board.
+- Mỗi slot UI cần kéo đủ 5 TMP Text:
+
+```text
+slotIndexText
+terrainText
+heroNameText
+heroStatsText
+heroHealthText
+```
+
+- Scene `battle` cần có 2 array trong `BattleUIController`:
+
+```text
+playerBoardSlotUis: size 7
+enemyBoardSlotUis: size 7
+```
+
+- Mỗi array phải kéo đúng thứ tự slot 1 đến slot 7.
+
+Lưu ý:
+
+```text
+Nếu terrain không hiện hoặc hiện No Terrain, cần kiểm tra GameSession.playerTerrainOrder và GameSession.enemyTerrainOrder.
+Nếu slot không hiện text, cần kiểm tra từng BattleBoardSlotUI đã kéo đúng TMP Text chưa.
+```
 
 ## 10. Prefab hiện có
 
@@ -2034,35 +2244,57 @@ Yêu cầu:
 18. Sửa `EffectData.cs` để có `conditionType`, `requiredTerrain`, `requiredTag`.
 19. Bắt đầu tạo folder `Assets/game_data/effects` để chứa effect asset.
 20. Bắt đầu gắn thử effect vào một số tactic asset như `entrenched_hold` và `river_stake_ambush`.
+21. Người dùng đã xác nhận đã fix xong các card và effect tạm thời.
+22. Bắt đầu battle runtime foundation.
+23. Đã có `BattleCardInstance`, `BattleHeroInstance`, `BattleBoardSlot`, `BattleTacticSlot`, `BattlePlayerState`, `BattleState`.
+24. Đã có `BattleInitializer` đọc `GameSession`, tạo state đầu trận, shuffle deck, draw 5 lá và random người đi trước.
+25. Đã mở rộng `BattleUIController` để hiển thị HP, turn, deck count, hand count, graveyard count và board slots.
+26. Đã có `BattleBoardSlotUI` để hiển thị terrain/hero placeholder cho từng slot.
+27. Scene `battle` đã được hướng dẫn setup 7 player board slots và 7 enemy board slots.
 ```
 
 ---
 
 ## 12. Việc đang dở
 
-Các phần chưa hoàn thiện:
+Các phần battle còn đang dở sau mốc 2026-06-13:
 
 ```text
-1. Cần kiểm tra đầy đủ các effect asset trong Assets/game_data/effects.
-2. Cần gán đầy đủ tacticEffects cho từng tactic card trong Inspector.
-3. Cần gán passiveEffects cho hero bằng condition/duration hợp lý.
-4. Chưa test EffectResolver bằng EffectTestRunner.
-5. Chưa có logic battle kiểm tra EffectConditionType thật.
-6. Chưa có battle runtime thật.
-7. Chưa có CardInstance.
-8. Chưa có HeroInstance.
-9. Chưa có PlayerBattleState.
-10. Chưa có BattleState.
-11. Chưa có BoardSlot.
-12. Chưa có BattleInitializer.
-13. Chưa có BattleManager thật.
-14. Chưa có TurnManager.
-15. Chưa có CombatResolver.
-16. Chưa có TacticService.
-17. Chưa có enemy AI đánh bài trong battle.
-18. Chưa nối terrain bonus vào battle.
-19. Chưa nối hero passiveEffects vào battle runtime thật.
-20. Chưa nối tacticEffects vào battle runtime thật.
+1. Chưa render bài trên tay player.
+2. Chưa có BattleHandCardUI.
+3. Chưa click chọn card trên tay.
+4. Chưa deploy hero từ hand xuống board.
+5. Chưa xóa card khỏi hand sau khi deploy.
+6. Chưa giới hạn mỗi lượt chỉ deploy/move 1 hero.
+7. Chưa có phase system đầy đủ:
+   - Draw
+   - Deploy/Move
+   - Tactic
+   - Combat
+   - End Turn
+8. Chưa có TurnManager.
+9. Chưa có CombatResolver.
+10. Chưa có TacticService.
+11. Chưa đặt úp/kích hoạt tactic ở 3 ô hàng sau.
+12. Chưa nối hero passiveEffects vào runtime theo condition.
+13. Chưa nối tacticEffects vào runtime.
+14. Chưa nối terrain bonus/effect vào tính chỉ số thật trong battle.
+15. Chưa có kiểm tra EffectConditionType trong battle.
+16. Chưa có enemy AI đánh bài trong battle.
+17. Chưa có win/lose/draw resolver khi HP về 0.
+```
+
+Các phần đã không còn coi là chưa làm:
+
+```text
+BattleCardInstance: đã có bản foundation
+BattleHeroInstance: đã có bản foundation
+BattlePlayerState: đã có bản foundation
+BattleBoardSlot: đã có bản foundation
+BattleTacticSlot: đã có bản foundation
+BattleState: đã có bản foundation
+BattleInitializer: đã có bản foundation
+BattleUIController: đã được mở rộng để render battle state và board slots
 ```
 
 ---
@@ -2072,72 +2304,54 @@ Các phần chưa hoàn thiện:
 Mốc tiếp theo nên làm theo thứ tự:
 
 ```text
-Bước 1: Hoàn thiện test effect module
-- kiểm tra Assets/game_data/effects và file .meta đã được Git theo dõi
-- kiểm tra/tạo attack_plus_2
-- kiểm tra/tạo defense_plus_2
-- kiểm tra/tạo attack_minus_2
-- kiểm tra/tạo defense_minus_2
-- với passive phụ thuộc địa hình, dùng WhileConditionTrue + condition phù hợp
-- với tactic ngắn hạn, dùng UntilEndOfTurn hoặc duration phù hợp
-- gắn thử vào vài tactic/passive
-- tạo EffectTestRunner hoặc test nhỏ để kiểm tra StatCalculator
+Bước 1: Hiển thị player hand
+- tạo BattleHandCardUI
+- tạo vùng Player Hand Row trong battle scene
+- render 5 lá trong BattleState.playerState.hand
+- mỗi hand card hiển thị tên, loại card, chỉ số/effect ngắn gọn
 
-Bước 2: Tạo battle runtime cơ bản
-- CardInstance
-- HeroInstance
-- PlayerBattleState
-- BoardSlot
-- BattleState
-- BattleInitializer
+Bước 2: Chọn card trên tay
+- click 1 hand card để chọn
+- lưu selectedHandIndex hoặc selectedCard trong controller
+- highlight card đang chọn
+- chỉ cho deploy nếu cardType = Hero
 
-Bước 3: Khi vào battle
-- đọc GameSession.selectedHeroes
-- đọc GameSession.selectedTactics
-- đọc GameSession.enemySelectedHeroes
-- đọc GameSession.enemySelectedTactics
-- đọc GameSession.playerTerrainOrder
-- đọc GameSession.enemyTerrainOrder
-- playerHealth = 100
-- enemyHealth = 100
-- tạo deck runtime
-- shuffle deck
-- draw 5 lá
-- random người đi trước
+Bước 3: Deploy hero xuống board
+- click 1 player board slot trống
+- tạo BattleHeroInstance từ selected hero card
+- đặt hero vào BattleBoardSlot.heroInstance
+- remove card khỏi hand
+- update lại BattleUIController
 
-Bước 4: Làm battle UI tối thiểu
-- player HP
-- enemy HP
-- player deck count
-- enemy deck count
-- player hand
-- 7 slot player
-- 7 slot enemy
-- terrain hai bên
+Bước 4: Chuẩn hóa flow deploy theo luật
+- mỗi lượt chỉ deploy hoặc move tối đa 1 hero
+- hero vừa deploy không được tấn công ngay trong lượt đó
+- không được deploy vào ô đã có hero
 
-Bước 5: Làm gameplay đơn giản trước
-- player đặt hero vào slot
-- turn đơn giản
-- hero tấn công slot đối diện
-- damage trực tiếp nếu slot đối diện trống
+Bước 5: Làm turn phase đơn giản
+- Draw phase: current player rút 1 lá
+- Deploy phase: player deploy/move 1 lần
+- Tactic phase: tạm thời bỏ qua hoặc disable
+- Combat phase: làm sau
+- End turn: switch turn
 
-Bước 6: Sau khi battle chạy ổn
-- nối tacticEffects vào battle
+Bước 6: Làm combat cơ bản
+- hero chỉ đánh ô đối diện
+- nếu có enemy hero thì tính damage lên hero
+- nếu ô đối diện trống thì damage trực tiếp vào enemy HP
+- hero chết thì chuyển vào graveyard
+
+Bước 7: Sau khi battle cơ bản chạy ổn
 - nối hero passiveEffects
-- nối terrain bonus
-- làm AI battle
+- nối tacticEffects
+- nối terrain bonus/effect
+- làm AI battle planner/scorer
 ```
 
 Mốc nhỏ nhất nên làm ngay sau file này:
 
 ```text
-Kiểm tra Unity compile sau khi thêm EffectConditionType.cs, sau đó kiểm tra/gán effect asset trong Assets/game_data/effects cho tacticEffects và passiveEffects.
-```
-
-Hoặc nếu muốn bỏ qua test effect tạm thời:
-
-```text
-Làm BattleInitializer đọc GameSession và hiển thị HP, deck count, hand 5 lá đầu, terrain hai bên.
+Hiển thị 5 lá bài trên tay người chơi trong battle scene, sau đó cho deploy hero từ hand xuống board.
 ```
 
 ---
@@ -2170,5 +2384,5 @@ Khi hỗ trợ project này, cần tuân thủ:
 ## 15. Câu tóm tắt để gửi vào chat mới
 
 ```text
-Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectConditionType, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan. Hero passive dùng passiveEffects, tactic card dùng tacticEffects, AIDeckScorer đọc EffectData thay vì attackBonus/defenseBonus/healthBonus cũ. Mốc mới nhất là bổ sung EffectConditionType và thêm conditionType/requiredTerrain/requiredTag vào EffectData để passive không bị hiểu nhầm là Permanent vô điều kiện; passive phụ thuộc địa hình nên dùng WhileConditionTrue. Đã bắt đầu tạo Assets/game_data/effects và chỉnh thử một số tactic asset như entrenched_hold, river_stake_ambush. Battle hiện mới có BattleUIController rất đơn giản, chưa có battle runtime thật. Việc tiếp theo nên làm là kiểm tra/gán effect asset cho tactic/passive, test lại deck preview, rồi bắt đầu BattleInitializer đọc GameSession, tạo deck runtime, shuffle, draw 5 lá, random turn và hiển thị battle UI tối thiểu.
+Tôi đang làm Hero Card Game bằng Unity 6000.3.11f1. Project hiện có flow scene: menu -> enemy_setup -> player_setup -> deck_setup -> opponent_deck_preview -> terrain_setup -> battle. Đã có GameSession singleton giữ dữ liệu xuyên scene. Đã có data ScriptableObject cho CountryData, HeroCardData, TacticCardData, TerrainData, TagData. Country Viet Nam có 16 hero, 10 tactic, 7 terrain. Đã tách AI thành module trong Assets/scripts/ai gồm core, profiles, deck, terrain, battle. AI hiện đã random play style, chọn enemy deck 15 hero + 9 tactic, và tự swap terrain theo hướng counter trong terrain_setup. Đã có scene opponent_deck_preview hiển thị deck địch 60 giây. Đã có effect module trong Assets/scripts/effects gồm EffectData, EffectConditionType, EffectInstance, EffectResolver, StatCalculator, StatModifierEffectData và enum liên quan. Hero passive dùng passiveEffects, tactic card dùng tacticEffects, AIDeckScorer đọc EffectData thay vì attackBonus/defenseBonus/healthBonus cũ. Người dùng đã xác nhận đã fix xong card/effect tạm thời. Mốc mới nhất là bắt đầu battle runtime foundation: đã tạo BattleCardType, BattleCardInstance, BattleHeroInstance, BattleBoardSlot, BattleTacticSlot, BattlePlayerState, BattleState, BattleInitializer; BattleInitializer đọc GameSession, tạo deck runtime cho player/enemy, shuffle, draw 5 lá, random người đi trước và gửi BattleState cho BattleUIController. BattleUIController đã được mở rộng để hiển thị HP, turn, deck count, hand count, graveyard count và 7 board slots mỗi bên. Đã thêm BattleBoardSlotUI để hiển thị slot index, terrain, hero name/Empty, ATK/DEF, HP. Scene battle đang được setup với 7 player board slots và 7 enemy board slots. Việc tiếp theo nên làm là BattleHandCardUI để render 5 lá trên tay player, sau đó cho click chọn hero card và deploy xuống một ô board trống.
 ```
