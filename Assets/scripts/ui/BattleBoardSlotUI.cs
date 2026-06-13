@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleBoardSlotUI : MonoBehaviour
 {
@@ -9,6 +10,37 @@ public class BattleBoardSlotUI : MonoBehaviour
     public TMP_Text heroNameText;
     public TMP_Text heroStatsText;
     public TMP_Text heroHealthText;
+
+    private int slotIndex;
+    private bool isPlayerBoard;
+    private BattleUIController owner;
+    private Button button;
+
+    private void Awake()
+    {
+        button = GetComponent<Button>();
+
+        if (button == null)
+        {
+            button = GetComponentInChildren<Button>();
+        }
+
+        if (button != null)
+        {
+            button.onClick.AddListener(HandleClick);
+        }
+    }
+
+    public void SetupClick(
+        int slotIndex,
+        bool isPlayerBoard,
+        BattleUIController owner
+    )
+    {
+        this.slotIndex = slotIndex;
+        this.isPlayerBoard = isPlayerBoard;
+        this.owner = owner;
+    }
 
     public void ShowSlot(BattleBoardSlot slot)
     {
@@ -27,7 +59,7 @@ public class BattleBoardSlotUI : MonoBehaviour
         {
             if (slot.terrainData != null)
             {
-                terrainText.text = slot.terrainData.name;
+                terrainText.text = slot.terrainData.terrainName;
             }
             else
             {
@@ -103,5 +135,13 @@ public class BattleBoardSlotUI : MonoBehaviour
         }
 
         ShowEmptyHero();
+    }
+
+    private void HandleClick()
+    {
+        if (owner != null)
+        {
+            owner.OnBoardSlotClicked(isPlayerBoard, slotIndex);
+        }
     }
 }

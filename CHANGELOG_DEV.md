@@ -6,6 +6,294 @@
 
 ---
 
+## 2026-06-14 — Thêm player hand scroll, deploy hero và đặt úp tactic trong battle
+
+### Bối cảnh
+
+- Sau khi battle runtime foundation đã chạy được và board slots đã hiển thị đúng, tiếp tục làm gameplay thao tác đầu tiên trong scene `battle`.
+- Mục tiêu mốc này là cho người chơi bắt đầu tương tác thật với battle:
+  - nhìn thấy bài trên tay;
+  - kéo ngang hand khi có nhiều bài;
+  - click chọn lá trên tay;
+  - deploy hero xuống ô board trống;
+  - đặt úp tactic vào 3 ô hàng sau;
+  - có nút end turn tạm để test lượt.
+
+### Đã làm
+
+- Thêm UI hiển thị card trên tay player bằng script:
+
+```text
+Assets/scripts/ui/BattleHandCardUI.cs
+```
+
+`BattleHandCardUI` hiện làm được:
+
+```text
+hiển thị tên card
+hiển thị loại card Hero/Tactic
+hiển thị chỉ số hero ATK/DEF/HP
+hiển thị mô tả passive/effect ngắn gọn
+gửi sự kiện click card về BattleUIController
+```
+
+- Tạo / cập nhật prefab card trên tay:
+
+```text
+Assets/prefabs/battle_hand_card.prefab
+```
+
+Prefab này dùng trong battle hand UI và nên có `Layout Element` để giữ kích thước card ổn định trong `Horizontal Layout Group`.
+
+- Sửa vùng player hand trong scene `battle` thành dạng scroll ngang:
+
+```text
+PlayerHandScrollView
+└── Viewport
+    └── PlayerHandContent
+```
+
+Cấu hình chính:
+
+```text
+Scroll Rect:
+- Horizontal: bật
+- Vertical: tắt
+- Content: PlayerHandContent
+- Viewport: Viewport
+
+Viewport:
+- Image
+- Mask
+
+PlayerHandContent:
+- Horizontal Layout Group
+- Content Size Fitter
+```
+
+Mục đích:
+
+```text
+Nếu hand có nhiều card thì card không tràn ra ngoài khung, người chơi kéo trái/phải để xem.
+```
+
+- Mở rộng `BattleUIController.cs` để render player hand thật từ:
+
+```text
+battleState.playerState.hand
+```
+
+- Thêm logic chọn card trên tay:
+
+```text
+OnHandCardClicked(int handIndex)
+selectedHandCardIndex
+```
+
+- Thêm logic deploy hero từ hand xuống player board slot:
+
+```text
+OnBoardSlotClicked(bool isPlayerBoard, int slotIndex)
+DeploySelectedHeroToSlot(int slotIndex)
+```
+
+Luật deploy hiện tại:
+
+```text
+chỉ deploy khi tới lượt player
+chỉ deploy card có BattleCardType.Hero
+chỉ deploy vào player board
+chỉ deploy vào ô trống
+mỗi lượt chỉ dùng 1 hero action
+sau deploy thì remove card khỏi hand
+sau deploy thì refresh UI
+```
+
+- Cập nhật `BattleBoardSlotUI.cs` để board slot có thể nhận click.
+
+Các thay đổi chính:
+
+```text
+thêm Button click handler
+thêm SetupClick(...)
+gọi BattleUIController.OnBoardSlotClicked(...)
+hiển thị terrain bằng terrainData.terrainName thay vì asset name
+```
+
+- Thêm trạng thái giới hạn action theo lượt vào `BattlePlayerState.cs`:
+
+```csharp
+public bool hasUsedHeroActionThisTurn;
+public bool hasUsedTacticActionThisTurn;
+```
+
+- Thêm UI cho tactic slot hàng sau bằng script:
+
+```text
+Assets/scripts/ui/BattleTacticSlotUI.cs
+```
+
+`BattleTacticSlotUI` hiện làm được:
+
+```text
+hiển thị slot index
+hiển thị Empty nếu chưa có tactic
+hiển thị Face Down nếu tactic đang úp
+hiển thị Active nếu tactic đang active
+gửi sự kiện click tactic slot về BattleUIController
+```
+
+- Mở rộng scene `battle` với 3 tactic slot của player:
+
+```text
+PlayerTacticSlot1
+PlayerTacticSlot2
+PlayerTacticSlot3
+```
+
+- Mở rộng `BattleUIController.cs` để hiển thị và xử lý tactic slots:
+
+```text
+playerTacticSlotUis
+enemyTacticSlotUis
+ShowTacticSlots(...)
+OnTacticSlotClicked(...)
+PlaceSelectedTacticToSlot(...)
+```
+
+Luật đặt tactic hiện tại:
+
+```text
+chỉ đặt khi tới lượt player
+chỉ đặt card có BattleCardType.Tactic
+chỉ đặt vào player tactic slot
+chỉ đặt vào ô tactic trống
+mỗi lượt chỉ dùng 1 tactic action
+tactic được đặt ở trạng thái face down
+sau khi đặt thì remove card khỏi hand
+sau khi đặt thì refresh UI
+```
+
+- Thêm / dùng nút `End Turn` tạm trong battle để test lượt.
+
+Logic hiện tại khi end turn:
+
+```text
+đánh dấu tactic của người chơi cũ không còn là vừa đặt trong lượt này
+SwitchTurn()
+reset hero action và tactic action cho current player mới
+current player rút 1 lá
+bỏ chọn card đang chọn
+refresh UI
+```
+
+- Sửa back trong battle để quay về scene setup đối thủ:
+
+```csharp
+public void BackToEnemySetup()
+{
+    SceneManager.LoadScene("enemy_setup");
+}
+```
+
+`backToMenu()` hiện có thể gọi lại `BackToEnemySetup()` để giữ flow test hiện tại.
+
+### File đã thêm
+
+```text
+Assets/scripts/ui/BattleHandCardUI.cs
+Assets/scripts/ui/BattleTacticSlotUI.cs
+Assets/prefabs/battle_hand_card.prefab
+```
+
+### File đã sửa
+
+```text
+Assets/scripts/battle/core/BattlePlayerState.cs
+Assets/scripts/ui/BattleUIController.cs
+Assets/scripts/ui/BattleBoardSlotUI.cs
+Assets/scenes/battle.unity
+```
+
+### Setup scene đã làm / cần kiểm tra
+
+Trong `BattleUIController`, cần kéo đúng:
+
+```text
+Player Hand Content -> PlayerHandContent trong Scroll View
+Player Hand Card Prefab -> battle_hand_card.prefab
+
+Player Board Slot Uis -> 7 player board slots
+Enemy Board Slot Uis -> 7 enemy board slots
+
+Player Tactic Slot Uis -> 3 player tactic slots
+Enemy Tactic Slot Uis -> có thể để 0 nếu chưa làm enemy tactic UI
+```
+
+Với board slot và tactic slot:
+
+```text
+Object cần có Image/Button để nhận raycast click.
+Raycast Target cần bật trên Image nếu dùng Button.
+```
+
+### Kết quả test đã đạt
+
+Người dùng đã xác nhận làm được mốc này.
+
+Khi test trong `battle`:
+
+```text
+hand của player hiển thị card
+hand có thể kéo ngang, không tràn ra ngoài khung
+click hero card rồi click player board slot trống thì deploy được hero
+sau deploy, hero hiện trên board và card biến mất khỏi hand
+click tactic card rồi click player tactic slot trống thì đặt úp được tactic
+sau khi đặt tactic, card biến mất khỏi hand
+mỗi lượt chỉ dùng được 1 hero action và 1 tactic action
+End Turn chuyển lượt và rút bài cho người chơi hiện tại
+Back trong battle quay về enemy_setup
+```
+
+### Chưa làm trong mốc này
+
+```text
+1. Chưa kích hoạt tactic đã đặt úp.
+2. Chưa chọn mục tiêu cho tactic.
+3. Chưa apply tacticEffects vào hero/player.
+4. Chưa nối passiveEffects của hero vào runtime theo condition.
+5. Chưa nối terrain bonus/effect vào chỉ số thật trong battle.
+6. Chưa có phase manager đầy đủ.
+7. Chưa có combat resolver.
+8. Chưa có AI battle action.
+9. Chưa có win/lose/draw resolver.
+```
+
+### Việc cần làm tiếp
+
+Mốc tiếp theo nên làm:
+
+```text
+1. Làm chọn/kích hoạt tactic đã đặt úp.
+2. Nếu tactic cần target SelectedAllyHero, cho player chọn 1 hero đồng minh.
+3. Dùng EffectResolver để add tacticEffects vào BattleHeroInstance.activeEffects.
+4. Refresh UI để thấy stat thay đổi.
+5. Sau khi tactic effect chạy được, làm combat cơ bản:
+   - hero đánh ô đối diện;
+   - nếu có hero địch thì tính damage;
+   - nếu ô trống thì đánh trực tiếp enemy HP;
+   - hero chết thì chuyển vào graveyard.
+```
+
+### Commit gợi ý
+
+```bash
+git add .
+git commit -m "feat(battle): add hand scrolling and tactic placement flow"
+```
+
+---
+
 ## 2026-06-13 — Khởi tạo battle runtime và hiển thị board slots trong battle scene
 
 ### Bối cảnh

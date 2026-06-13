@@ -8,6 +8,9 @@ public class BattlePlayerState
 
     public int currentHealth = 100;
 
+    public bool hasUsedTacticActionThisTurn;
+    public bool hasUsedHeroActionThisTurn;
+
     public List<BattleCardInstance> deck = new List<BattleCardInstance>();
     public List<BattleCardInstance> hand = new List<BattleCardInstance>();
     public List<BattleHeroInstance> graveyard = new List<BattleHeroInstance>();
@@ -27,6 +30,8 @@ public class BattlePlayerState
         this.isAI = isAI;
 
         currentHealth = 100;
+        hasUsedHeroActionThisTurn = false;
+        hasUsedTacticActionThisTurn = false;
 
         BuildDeck(selectedHeroes, selectedTactics);
         ShuffleDeck();
@@ -121,5 +126,10 @@ public class BattlePlayerState
         {
             DrawCard();
         }
+    }
+
+    public void ResetTurnActions()
+    {
+        hasUsedHeroActionThisTurn = false;
     }
 }
